@@ -559,7 +559,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <li><a href="index.html"><i class="fas fa-home"></i>Home</a></li>
           <li><a href="about.html"><i class="fas fa-users"></i>About Us</a></li>
           <li><a href="contact.html"><i class="fas fa-envelope"></i>Contact</a></li>
-          <li><a href="faq.html"><i class="fas fa-question-circle"></i>FAQ</a></li>
+          <li><a href="Faq.html"><i class="fas fa-question-circle"></i>FAQ</a></li>
         </ul>
       </div>
 
@@ -577,7 +577,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
         <div class="social-icons">
           <a href="https://github.com/supriya46788" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
 <a href="https://www.linkedin.com/in/supriyapandey595" target="_blank" title="LinkedIn" class="linkedin-icon">
-  <i class="fab fa-linkedin" style="color: white;"></i>
+  <i class="fab fa-linkedin"></i>
 </a>
           <a href="mailto:supriyadpandey502@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
         </div>
@@ -717,19 +717,35 @@ border-top-color: rgba(224, 224, 224, 0.1);
          //back to top button 
 // Show button when scrolled down
 const backToTop = document.getElementById("backToTop");
+const icon = backToTop.querySelector("i");
 
 window.addEventListener("scroll", () => {
   if (window.scrollY > 100) {
     backToTop.style.display = "block";
+
+   
+    if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 10) {
+      icon.classList.remove("fa-arrow-down");
+      icon.classList.add("fa-arrow-up");
+    } else {
+      icon.classList.remove("fa-arrow-up");
+      icon.classList.add("fa-arrow-down");
+    }
   } else {
     backToTop.style.display = "none";
   }
 });
 
-// Smooth scroll to top
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+ backToTop.addEventListener("click", () => {
+  if (icon.classList.contains("fa-arrow-down")) {
+    // scroll to bottom
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+  } else {
+    // scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 });
+
 
   </script>
 </body>

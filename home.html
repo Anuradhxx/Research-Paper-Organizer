@@ -1,4 +1,5 @@
-<!DOCTYPE h  <link rel="stylesheet" href="css/style.css" />
+<!DOCTYPE html>
+  
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,10 @@
   <!-- SweetAlert2 CDN -->
    
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.worker.min.js';
+</script>
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon/favicon-48x48.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
@@ -91,7 +96,526 @@
   font-size: 17px;  /* increased size */
 }
 
+/* General Paper Details Section */
+.details-section {
+  background-color: #f9f9f9; /* light default */
+  color: #111; 
+  padding: 20px;
+  border-radius: 10px;
+  margin: 10px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+}
 
+/* Dark Mode */
+.details-section.dark-mode {
+  background-color: #1f1f2e;
+  color: #e0e0e0;
+  box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+}
+
+/* Detail Titles */
+.details-title, .detail-section h3, .detail-section h4 {
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+/* Content Paragraphs */
+.detail-section p {
+  margin: 5px 0 12px 0;
+  line-height: 1.5;
+  color: inherit;
+}
+
+/* Tags */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.detail-tag {
+  background-color: #e0e0e0;
+  color: #111;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+.details-section.dark-mode .detail-tag {
+  background-color: #33334d;
+  color: #f0f0f0;
+}
+
+/* Rating & Favorite */
+.rating-favorite-details {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+.paper-rating .stars {
+  color: #ffc107; /* gold stars */
+  font-size: 1.1rem;
+}
+.details-section.dark-mode .paper-rating .stars {
+  color: #ffcc00;
+}
+.paper-favorite i {
+  color: #e74c3c; /* red heart */
+}
+
+/* PDF Preview */
+.pdf-preview {
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.details-section.dark-mode .pdf-preview {
+  border: 1px solid #444;
+}
+
+/* Citation Section */
+.citation-section {
+  margin-top: 15px;
+}
+.citation-item {
+  background-color: #f0f0f0e7;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.details-section.dark-mode .citation-item {
+  background-color: #2a2a3c;
+}
+.citation-text {
+  font-size: 0.9rem;
+  margin-top: 4px;
+  color: inherit;
+}
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #3498db;
+  margin-left: 8px;
+}
+.details-section.dark-mode .copy-btn {
+  color: #6ab0ff;
+}
+.details-section.dark-mode .details-title {
+  border-bottom: 1px solid #555;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+/* Light mode */
+.detail-label {
+  font-weight: 500;
+  color: #374151; /* dark gray for readability */
+}
+
+/* Dark mode */
+body.dark-mode .detail-label {
+  color: #dcdce6; /* light gray for dark theme */
+}
+.detail-label {
+  transition: color 0.3s ease;
+}
+.details-title {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.details-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #374151; /* light mode */
+}
+
+body.dark-mode .details-title::after {
+  background-color: #dcdce6; /* dark mode */
+}
+/* General Paper Details Section */
+.details-section {
+  background-color: #f9f9f9; /* light default */
+  color: #111; 
+  padding: 20px;
+  border-radius: 10px;
+  margin: 10px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Dark Mode */
+.details-section.dark-mode {
+  background-color: #1f1f2e;
+  color: #e0e0e0;
+  box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+}
+
+/* Detail Titles */
+.details-title, .detail-section h3, .detail-section h4 {
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+/* Content Paragraphs */
+.detail-section p {
+  margin: 5px 0 12px 0;
+  line-height: 1.5;
+  color: inherit;
+}
+
+/* Tags */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.detail-tag {
+  background-color: #e0e0e0;
+  color: #111;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+.details-section.dark-mode .detail-tag {
+  background-color: #33334d;
+  color: #f0f0f0;
+}
+
+/* Rating & Favorite */
+.rating-favorite-details {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+.paper-rating .stars {
+  color: #ffc107; /* gold stars */
+  font-size: 1.1rem;
+}
+.details-section.dark-mode .paper-rating .stars {
+  color: #ffcc00;
+}
+.paper-favorite i {
+  color: #e74c3c; /* red heart */
+}
+
+/* PDF Preview */
+.pdf-preview {
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.details-section.dark-mode .pdf-preview {
+  border: 1px solid #444;
+}
+
+/* Citation Section */
+.citation-section {
+  margin-top: 15px;
+}
+.citation-item {
+  background-color: #f0f0f0e7;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.details-section.dark-mode .citation-item {
+  background-color: #2a2a3c;
+}
+.citation-text {
+  font-size: 0.9rem;
+  margin-top: 4px;
+  color: inherit;
+}
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #3498db;
+  margin-left: 8px;
+}
+.details-section.dark-mode .copy-btn {
+  color: #6ab0ff;
+}
+.details-section.dark-mode .details-title {
+  border-bottom: 1px solid #555;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+/* Light mode */
+.detail-label {
+  font-weight: 500;
+  color: #374151; /* dark gray for readability */
+}
+
+/* Dark mode */
+body.dark-mode .detail-label {
+  color: #dcdce6; /* light gray for dark theme */
+}
+.detail-label {
+  transition: color 0.3s ease;
+}
+.details-title {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.details-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #374151; /* light mode */
+}
+
+body.dark-mode .details-title::after {
+  background-color: #dcdce6; /* dark mode */
+}
+/* Paper Details Section */
+.details-section {
+  background-color: #f9f9f9;
+  color: #111827;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Dark mode */
+body.dark-mode .details-section {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Header inside Paper Details */
+/* ===== General Paper Details Section ===== */
+.details-section {
+  background-color: #f9f9f9; /* light default */
+  color: #111827; 
+  padding: 20px;
+  border-radius: 12px;
+  margin: 15px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body.dark-mode .details-section {
+  background-color: #1f2937;
+  color: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+}
+
+/* ===== Header & Titles ===== */
+.details-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 6px;
+}
+
+.details-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 150px;
+  height: 3px;
+  background-color: #3b82f6; /* light blue underline */
+  border-radius: 2px;
+}
+
+body.dark-mode .details-title::after {
+  background-color: #60a5fa; /* accent blue */
+}
+
+/* ===== Close Button ===== */
+.details-header .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  color: #e74c3c; /* red */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.details-header .close-btn:hover {
+  transform: scale(1.1);
+  color: #ff5252; /* hover red */
+}
+
+/* ===== Content Sections ===== */
+.details-content p {
+  line-height: 1.6;
+  margin: 6px 0 14px 0;
+  color: inherit;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #374151;
+  transition: color 0.3s ease;
+}
+
+body.dark-mode .detail-label {
+  color: #dcdce6;
+}
+
+/* ===== Tags ===== */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.detail-tag {
+  background-color: #e0e7ff;
+  color: #1d4ed8;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.detail-tag:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+body.dark-mode .detail-tag {
+  background-color: #374151;
+  color: #60a5fa;
+}
+
+body.dark-mode .detail-tag:hover {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* ===== Rating & Favorite ===== */
+.rating-favorite-details {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+
+.paper-rating .stars {
+  color: #ffc107;
+  font-size: 1.1rem;
+}
+
+body.dark-mode .paper-rating .stars {
+  color: #ffcc00;
+}
+
+.paper-favorite i {
+  color: #e74c3c;
+}
+
+body.dark-mode .paper-favorite i {
+  color: #ff6b6b;
+}
+
+/* ===== PDF Preview ===== */
+.pdf-preview {
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.pdf-preview:hover {
+  transform: scale(1.01);
+  border-color: #3b82f6;
+}
+
+body.dark-mode .pdf-preview {
+  border: 1px solid #444;
+}
+
+/* ===== Citation Section ===== */
+.citation-section {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Light mode citation */
+.citation-item {
+  background-color: #eef2ff; /* light blue card */
+  color: #111827; /* dark text */
+  padding: 12px 14px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.citation-item:hover {
+  background-color: #2563eb; /* hover blue */
+  color: #111827; /* keep text readable */
+}
+
+.citation-item .citation-text {
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+/* Dark mode citation */
+body.dark-mode .citation-item {
+  background-color: #1f2937;
+  color: #f3f4f6;
+}
+
+body.dark-mode .citation-item:hover {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* Copy button */
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #3498db;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  color: #1d4ed8;
+}
+
+body.dark-mode .copy-btn {
+  color: #60a5fa;
+}
+
+body.dark-mode .copy-btn:hover {
+  color: #93c5fd;
+}
   </style>
   
 </head>
@@ -409,9 +933,9 @@
   height: 50px;
   width: 50px;
 position: fixed;
-bottom: 30px;
-right: 30px;
-z-index: 1000;
+bottom: 80px;
+right: 25px;
+z-index: 998;
 background: linear-gradient(135deg,#0077b5 ,#4facfe );
 color: white;
 border: none;
@@ -440,59 +964,237 @@ box-shadow: rgba(0,0,0,0.8);
 }
   </style>
 
+  <style>
+    /* Modern Footer Styles */
+    .modern-footer {
+      width: 100vw; /* Full viewport width */
+      margin-left: calc(-50vw + 50%); /* Center it if inside a constrained container */
+      background: linear-gradient(135deg, #1f3c88, #2c5aa0);
+      color: #fff;
+      padding: 60px 20px 20px;
+      border-radius: 25px 25px 0 0;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+      overflow-x: hidden;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-bottom: 30px;
+    }
+
+    .footer-brand h3 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-brand h3 i {
+      margin-right: 10px;
+      font-size: 1.6rem;
+      vertical-align: middle;
+    }
+
+    .footer-brand p {
+      font-size: 1rem;
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+
+    .footer-links-section h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 5px;
+    }
+
+    .footer-links-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-links-section ul li {
+      margin-bottom: 8px;
+    }
+
+    .footer-links-section ul li a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+    }
+
+    .footer-links-section ul li a:hover {
+      color: #fff;
+      transform: translateX(5px);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .social-icons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: #fff;
+      transition: 0.3s;
+    }
+
+    .social-icons a:hover {
+      background: #fff;
+      color: #2c5aa0;
+      transform: scale(1.1);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 15px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .footer-card {
+      flex: 1 1 200px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      min-width: 200px;
+    }
+
+    .footer-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-card ul li {
+      margin-bottom: 8px;
+    }
+
+    .footer-card ul li a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+      padding: 5px;
+      padding-left: 20px;
+    }
+
+    .footer-card ul li a:hover {
+      color: #fff;
+      transform: translateX(5px);
+    }
+
+    .heart {
+      color: #e74c3c;
+    }
+
+    @media (max-width: 768px) {
+      .footer-top {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .footer-brand h3 {
+        font-size: 1.5rem;
+      }
+
+      .footer-links-section h4 {
+        font-size: 1rem;
+      }
+
+      .footer-links-section ul li a {
+        font-size: 0.95rem;
+      }
+
+      .social-icons a {
+        width: 35px;
+        height: 35px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .footer-top {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .social-icons {
+        justify-content: center;
+      }
+
+      .footer-links-section ul li a {
+        justify-content: center;
+      }
+    }
+  </style>
+
 
     <!-- Back to Top Button -->
-<button id="backToTop" title="Go to top">↑</button>
+<button id="backToTop" title="Scroll" aria-label="Scroll">
+  <i class="fa-solid fa-arrow-down"></i>
+</button>
 
 
-    <!-- Footer -->
-   <!--Footer-->
-  <footer class="blog-footer" aria-label="Footer">
-    <div class="footer-content">
-      <div class="footer-section">
-        <h3><i class="fas fa-book-open" aria-hidden="true"></i> Research Paper Organizer</h3>
-        <p>Streamline your academic workflow with our intelligent research paper management system.</p>
+
+  <!-- Modern Footer -->
+  <footer class="modern-footer" aria-label="Footer">
+    <div class="footer-top">
+      <div class="footer-brand footer-card">
+        <h3><i class="fas fa-book-open"></i> Research Paper Organizer</h3>
+        <p style=" margin-top: 20px;">Organize, track, and manage your research papers seamlessly.</p>
       </div>
-      <div class="footer-section">
+
+      <div class="footer-links-section footer-card" >
         <h4>Quick Links</h4>
-        <ul class="footer-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact</a></li>
-          <li><a href="Faq.html">FAQ</a></li>
+        <ul>
+          <li><a href="index.html"><i class="fas fa-home"></i>Home</a></li>
+          <li><a href="about.html"><i class="fas fa-users"></i>About Us</a></li>
+          <li><a href="contact.html"><i class="fas fa-envelope"></i>Contact</a></li>
+          <li><a href="Faq.html"><i class="fas fa-question-circle"></i>FAQ</a></li>
         </ul>
       </div>
-      <div class="footer-section">
+
+      <div class="footer-links-section footer-card">
         <h4>Resources</h4>
-        <ul class="footer-links">
-          <li><a href="blog.html">Blog</a></li>
-          <li><a href="glossary.html">Glossary</a></li>
-          <li><a href="open-source.html">Open Source</a></li>
-          <li><a href="Masthead.html">Masthead</a></li>
+        <ul>
+          <li><a href="blog.html"><i class="fas fa-blog"></i>Blog</a></li>
+          <li><a href="glossary.html"><i class="fas fa-book"></i>Glossary</a></li>
+          <li><a href="open-source.html"><i class="fas fa-code-branch"></i>Open Source</a></li>
         </ul>
       </div>
-      <div class="footer-section">
+
+      <div class="footer-links-section footer-card">
         <h4>Connect</h4>
-        <div class="social-links">
-          <a href="https://github.com/supriya46788/Research-Paper-Organizer" target="_blank" title="GitHub" rel="noopener">
-            <i class="fab fa-github" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span>
-          </a>
-          <a href="#" target="_blank" title="Twitter" rel="noopener">
-            <i class="fab fa-twitter" aria-hidden="true"></i>
-            <span class="sr-only">Twitter</span>
-          </a>
-          <a href="#" target="_blank" title="LinkedIn" rel="noopener">
-            <i class="fab fa-linkedin" aria-hidden="true"></i>
-            <span class="sr-only">LinkedIn</span>
-          </a>
+        <div class="social-icons">
+          <a href="https://github.com/supriya46788" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+<a href="https://www.linkedin.com/in/supriyapandey595" target="_blank" title="LinkedIn" class="linkedin-icon">
+  <i class="fab fa-linkedin"></i>
+</a>
+          <a href="mailto:supriyadpandey502@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
         </div>
       </div>
     </div>
+
     <div class="footer-bottom">
-      <p>© 2025 Research Paper Organizer | Open Source Project</p>
-      <p class="footer-tagline">Made with <i class="fas fa-heart" style="color: #e74c3c;" aria-hidden="true"></i> for researchers worldwide</p>
-    </div>
+  © 2025 Research Paper Organizer | Made with <span class="heart">&hearts;</span> for researchers worldwide
+</div>
+
   </footer>
 
   <script>
@@ -514,47 +1216,176 @@ box-shadow: rgba(0,0,0,0.8);
     
       //back to top button 
 // Show button when scrolled down
-const backToTop = document.getElementById("backToTop");
+const bottomToTopButton = document.getElementById("backToTop");
+const icon = bottomToTopButton.querySelector("i");
 
 window.addEventListener("scroll", () => {
   if (window.scrollY > 100) {
-    backToTop.style.display = "block";
+    bottomToTopButton.style.display = "block";
+
+    if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 10) {
+      icon.classList.remove("fa-arrow-down");
+      icon.classList.add("fa-arrow-up");
+    } else {
+      icon.classList.remove("fa-arrow-up");
+      icon.classList.add("fa-arrow-down");
+    }
   } else {
-    backToTop.style.display = "none";
+    bottomToTopButton.style.display = "none";
   }
 });
 
-// Smooth scroll to top
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+bottomToTopButton.addEventListener("click", () => {
+  if (icon.classList.contains("fa-arrow-down")) {
+    // scroll to bottom
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+  } else {
+    // scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 });
+
 
   </script>
 
     <script src="js/script.js"></script>
+<style>
+/* Bubble button mobile sizing */
+@media (max-width: 768px) {
+  button#chatbase-bubble-button {
+    position: fixed !important;
+    /* bottom: 300px !important;
+    left:300px !important; */
+    width: 55px !important;
+    height: 55px !important;
+    border-radius: 50% !important;
+    z-index: 2147483647 !important; 
+  }
 
-    <!-- Chatbot Window -->
-<div id="chatbot-container" class="hidden" aria-live="polite">
-  <div class="chatbot-header">
-    <span><i class="fas fa-robot" style="margin-right:6px;"></i>Assistant</span>
-    <button id="closeChatbot" title="Close" aria-label="Close chatbot">&times;</button>
-  </div>
+  button#chatbase-bubble-button svg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+@media (max-width: 768px) {
+  #chatbase-bubble-button {
+    position: fixed !important;
+    z-index: 2147483647 !important; 
+  }
 
-  <div class="chatbot-messages" id="chatbotMessages"></div>
+  /* Jab window open ho */
+  #chatbase-bubble-window[style*="display: flex"] + #chatbase-bubble-button {
+    bottom: 15px !important; 
+  }
+}
+button#chatbase-bubble-button div {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
 
-  <div class="chatbot-input-container">
-    <input id="chatbotInput" type="text" placeholder="Type your message..." aria-label="Type your message" />
-    <button id="sendChatbot" title="Send" aria-label="Send message">
-      <i class="fas fa-paper-plane"></i>
-    </button>
-  </div>
-</div>
+/* Window responsive – act like card */
+@media (max-width: 768px) {
+  #chatbase-bubble-window {
+    position: absolute;
+    width: 90% !important;
+    height: 75% !important;
+    bottom: 80px !important;
+    right: 15px !important;
+    left: auto !important;
+    top: auto !important;
+    border-radius: 16px !important;
+    background: transparent !important; /* remove white bg */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  }
 
-<!-- Floating Chat Toggle -->
-<button id="chatbot-toggle" title="Chat with Assistant" aria-label="Open chatbot">
-  <i class="fas fa-comment-alt"></i>
-</button>
+  #chatbase-bubble-window iframe {
+    border-radius: 16px !important;
+    background: black !important; /* chatbot stays black */
+  }
+}
+</style>
+    <!-- Chatbase Integration -->
+     <script>
+        (function(){
+            if(!window.chatbase || window.chatbase("getState") !== "initialized"){
+                window.chatbase = (...arguments) => {
+                    if(!window.chatbase.q){ window.chatbase.q = [] }
+                    window.chatbase.q.push(arguments)
+                };
+                window.chatbase = new Proxy(window.chatbase, {
+                    get(target, prop) {
+                        if(prop === "q"){ return target.q }
+                        return (...args) => target(prop, ...args)
+                    }
+                });
+            }
+            const onLoad = function(){
+                const script = document.createElement("script");
+                script.src = "https://www.chatbase.co/embed.min.js";
+                script.id = "SZQX20er6m-s8iNiFcBtK";
+                script.domain = "www.chatbase.co";
+                document.body.appendChild(script)
+            };
+            if(document.readyState === "complete"){ onLoad() }
+            else { window.addEventListener("load", onLoad) }
+        })();
+    </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const bubbleWindow = document.getElementById("chatbase-bubble-window");
+  const bubbleButton = document.getElementById("chatbase-bubble-button");
 
+  if (!bubbleWindow || !bubbleButton) return;
+
+  function setImportant(el, prop, value) {
+    el.style.setProperty(prop, value, "important");
+  }
+
+  function updateButtonPosition() {
+    const rect = bubbleWindow.getBoundingClientRect();
+
+    if (bubbleWindow.style.display === "flex") {
+      // Button below chat window (no changes here)
+      const topPos = window.scrollY + rect.bottom + 10;
+      const leftPos = rect.left;
+
+      setImportant(bubbleButton, "position", "fixed");
+      setImportant(bubbleButton, "top", topPos + "px");
+      setImportant(bubbleButton, "left", leftPos + "px");
+      setImportant(bubbleButton, "bottom", "auto");
+      setImportant(bubbleButton, "right", "auto");
+    } else {
+      // Closed position with left:300px; bottom:300px
+      setImportant(bubbleButton, "position", "fixed");
+      setImportant(bubbleButton, "bottom", "300px");
+      setImportant(bubbleButton, "left", "300px");
+      setImportant(bubbleButton, "top", "auto");
+      setImportant(bubbleButton, "right", "auto");
+    }
+  }
+
+  updateButtonPosition();
+  window.addEventListener("scroll", updateButtonPosition);
+  window.addEventListener("resize", updateButtonPosition);
+
+  // Toggle chat window
+  bubbleButton.addEventListener("click", () => {
+    bubbleWindow.style.display = bubbleWindow.style.display === "flex" ? "none" : "flex";
+    updateButtonPosition();
+  });
+
+  // Handle iframe close button
+  window.addEventListener("message", (event) => {
+    if (event.data?.type === "chatbase-close") {
+      bubbleWindow.style.display = "none";
+      updateButtonPosition();
+    }
+  });
+});
+</script>
 </body>
 
 </html>

@@ -4,7 +4,14 @@ let papers = [];
 let topics = [];
 let selectedPaper = null;
 let editingPaper = null;
-
+let utterance = null;
+let full_text = "";
+let nvoice = null;
+let speechRate = 1;
+let pdf = null; // Holds PDF.js document
+let current_page = 1;
+let isSpeechPaused = false; // Track pause/resume state
+let isSpeechActive = false; // Track if speech is currently active
 const PAPERS_KEY = "papers_db";
 const TOPICS_KEY = "topics_db";
 
@@ -441,10 +448,153 @@ function renderPapers(filteredPapers = papers) {
     )
     .join("");
 }
+function base64ToArrayBuffer(base64) {
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+async function speakText() {
+  if(nvoice===null || speechSynthesis.getVoices().length===0){
+    window.speechSynthesis.onvoiceschanged = () => {
+      const nvoices = window.speechSynthesis.getVoices();
+      if(nvoices.length > 0){
+        nvoice = nvoices.find(v => v.name === "Google US English") || nvoices[0];
+      }
+    };
+  }
+  if(currentPage > pdf.numPages){
+    if(confirm("You have reached the end of the document. Would you like to restart?")){
+      currentPage = 1;
+      speakText();
+    }
+    return;
+  }
+  if (utterance) {
+    window.speechSynthesis.cancel();
+  }
+  // Reset pause state when starting new speech
+  isSpeechPaused = false;
+  isSpeechActive = true;
+  updateTTSButtons();
+  const page = await pdf.getPage(currentPage);
+  const textContent = await page.getTextContent();
+  const pageText = textContent.items.map(item => item.str).join(" ");  
+  utterance = new SpeechSynthesisUtterance(pageText);
+  utterance.voice=nvoice;
+  utterance.lang="en-US";
+  utterance.rate=speechRate;
+  utterance.pitch=1; // optional: add events
+  utterance.onstart = () => {
+    isSpeechPaused = false;
+    isSpeechActive = true;
+    updateTTSButtons();
+  };
+  utterance.onend = () => {
+    if(currentPage >= pdf.numPages) {
+      // Speech has ended completely
+      isSpeechActive = false;
+      isSpeechPaused = false;
+      updateTTSButtons();
+    } else {
+      currentPage++;
+      speakText(); // Recursively speak next page
+    }
+  };
+  utterance.onerror = () => {
+    // Handle speech error
+    isSpeechActive = false;
+    isSpeechPaused = false;
+    updateTTSButtons();
+  };
+  window.speechSynthesis.speak(utterance);
+}
+function pauseSpeech() {
+  if (utterance) {
+    window.speechSynthesis.pause();
+    isSpeechPaused = true;
+    updateTTSButtons();
+  }
+}
+function resumeSpeech() {
+  if (utterance) {
+    window.speechSynthesis.resume();
+    isSpeechPaused = false;
+    updateTTSButtons();
+  }
+}
+function togglePlayPause() {
+  if (!isSpeechActive) {
+    // Start playing
+    speakText();
+  } else if (isSpeechPaused) {
+    // Resume speech
+    resumeSpeech();
+  } else {
+    // Pause speech
+    pauseSpeech();
+  }
+}
+function stopSpeech() {
+  if (utterance) {
+    window.speechSynthesis.cancel();
+    isSpeechPaused = false;
+    isSpeechActive = false;
+    updateTTSButtons();
+  }
+}
+function updateTTSButtons() {
+  const playPauseBtn = document.getElementById("playPauseBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  
+  // Update play/pause button
+  if (playPauseBtn) {
+    if (!isSpeechActive) {
+      // Not playing - show play button
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i> Play';
+      playPauseBtn.className = 'tts-btn tts-play';
+    } else if (isSpeechPaused) {
+      // Paused - show resume button
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+      playPauseBtn.className = 'tts-btn tts-resume';
+    } else {
+      // Playing - show pause button
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+      playPauseBtn.className = 'tts-btn tts-pause';
+    }
+  }
+  
+  // Enable/disable stop button based on speech activity
+  if (stopBtn) {
+    stopBtn.disabled = !isSpeechActive;
+  }
+}
+function setSpeechRate(rate) {
+  if (utterance) {
+    window.speechSynthesis.pause();
+    speechRate = rate;
+    speakText(utterance.text);
+  }
+}
+
+
 
 // Select paper and show details
-function selectPaper(id) {
+ async function selectPaper(id) {
+  if(utterance){
+     window.speechSynthesis.cancel();
+     currentPage=1;
+     utterance=null; // Prevent triggering next page speech
+  }
   selectedPaper = papers.find((p) => p.id === id);
+  if (selectedPaper.pdfData) {
+  const base64 = selectedPaper.pdfData.split(',')[1]; // Remove data URL prefix
+  const arrayBuffer = base64ToArrayBuffer(base64);
+  pdf=await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+  }
   showPaperDetails();
   renderPapers(); // Re-render to update selection
 }
@@ -469,7 +619,8 @@ function showPaperDetails() {
         <div class="detail-section">
             <div class="rating-favorite-details">
                 <div class="rating-display">
-                    <span style="font-weight: 500; color: #374151;">Rating:</span>
+                   <span class="detail-label">Rating:</span>
+
                     ${
                       selectedPaper.rating > 0
                         ? `
@@ -484,7 +635,8 @@ function showPaperDetails() {
                     }
                 </div>
                 <div class="favorite-display">
-                    <span style="font-weight: 500; color: #374151;">Favorite:</span>
+                   <span class="detail-label">Favorite:</span>
+
                     ${
                       selectedPaper.isFavorite
                         ? `<span class="paper-favorite"><i class="fas fa-heart"></i> Yes</span>`
@@ -535,7 +687,7 @@ function showPaperDetails() {
               selectedPaper.year
                 ? `
             <div>
-                <span style="font-weight: 500; color: #374151;">Year:</span>
+               <span class="detail-label">Year:</span>
                 <p>${selectedPaper.year}</p>
             </div>
             `
@@ -545,7 +697,7 @@ function showPaperDetails() {
               selectedPaper.journal
                 ? `
             <div>
-                <span style="font-weight: 500; color: #374151;">Journal:</span>
+               <span class="detail-label">Journal:</span>
                 <p>${selectedPaper.journal}</p>
             </div>
             `
@@ -572,6 +724,21 @@ function showPaperDetails() {
           selectedPaper.pdfData
             ? `
         <div class="detail-section">
+        <div class="tts-controls">
+              <button id="playPauseBtn" class="tts-btn tts-play" onclick="togglePlayPause()">
+                <i class="fas fa-play"></i>
+                Play
+              </button>
+              <button id="stopBtn" class="tts-btn tts-stop" onclick="stopSpeech()">
+                <i class="fas fa-stop"></i>
+                Stop
+              </button>
+              <div class="speed-control">
+                <label for="rate">Speed:</label>
+                <input type="number" onchange="setSpeechRate(this.value)" id="rate" value="1" step="0.1" min="0.5" max="2">
+              </div>
+            </div>
+            
             <h4>PDF Preview</h4>
             <iframe src="${selectedPaper.pdfData}" class="pdf-preview" frameborder="0"></iframe>
         </div>
@@ -606,8 +773,23 @@ function showPaperDetails() {
             </div>
         </div>
     `;
+    setTimeout(() => {
+        updateTTSButtons();
+    }, 100);
 }
+// ✅ Apply dark mode if active
+if (document.body.classList.contains("dark-mode")) {
+    detailsContent.classList.add("dark-mode");
 
+    // 👇 Make labels readable in dark mode
+    detailsContent.querySelectorAll('.rating-display span, .favorite-display span, .details-grid span').forEach(el => el.style.color = "#dcdce6");
+
+} else {
+    detailsContent.classList.remove("dark-mode");
+
+    // 👇 Reset labels back for light mode
+    detailsContent.querySelectorAll('.rating-display span, .favorite-display span, .details-grid span').forEach(el => el.style.color = "#374151");
+}
 // Close paper details
 function closeDetails() {
   selectedPaper = null;
@@ -1280,93 +1462,20 @@ backToTopBtn.addEventListener("click", () => {
   });
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const chatbotToggle = document.getElementById("chatbot-toggle");
-  const chatbotContainer = document.getElementById("chatbot-container");
-  const closeChatbot = document.getElementById("closeChatbot");
-  const sendBtn = document.getElementById("sendChatbot");
-  const chatbotInput = document.getElementById("chatbotInput");
-  const messagesBox = document.getElementById("chatbotMessages");
+// Custom chatbot functionality removed - now using Chatbase integration
 
-  // Open/close
-  chatbotToggle?.addEventListener("click", () => {
-    chatbotContainer.classList.toggle("hidden");
-    if (!chatbotContainer.classList.contains("hidden")) {
-      chatbotInput.focus();
-    }
-  });
-  closeChatbot?.addEventListener("click", () => {
-    chatbotContainer.classList.add("hidden");
-  });
-
-  // Send handlers
-  sendBtn?.addEventListener("click", sendMessage);
-  chatbotInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
-
-  function addMessage(text, sender, asHTML = false) {
-    const msg = document.createElement("div");
-    msg.classList.add("chatbot-message", sender);
-    if (asHTML) {
-      msg.innerHTML = text;
-    } else {
-      msg.textContent = text;
-    }
-    messagesBox.appendChild(msg);
-    messagesBox.scrollTop = messagesBox.scrollHeight;
-    return msg;
+async function getSuggestedTags(title, abstract) {
+  try {
+    const response = await fetch("/api/research-papers/suggest-tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, abstract })
+    });
+    if (!response.ok) throw new Error("Failed to get tag suggestions");
+    const data = await response.json();
+    return data.suggestedTags || [];
+  } catch (err) {
+    alert("Error getting tag suggestions: " + err.message);
+    return [];
   }
-
-  function addTyping() {
-    const bubble = document.createElement("div");
-    bubble.classList.add("chatbot-message", "bot");
-    bubble.innerHTML = `
-      <span class="chatbot-typing"></span>
-      <span class="chatbot-typing"></span>
-      <span class="chatbot-typing"></span>
-    `;
-    messagesBox.appendChild(bubble);
-    messagesBox.scrollTop = messagesBox.scrollHeight;
-    return bubble;
-  }
-
-  async function sendMessage() {
-    const text = chatbotInput.value.trim();
-    if (!text) return;
-
-    // User bubble
-    addMessage(text, "user");
-    chatbotInput.value = "";
-
-    // Typing indicator
-    const typingBubble = addTyping();
-
-    try {
-      // Call your backend proxy for Gemini
-      const res = await fetch("/api/gemini-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text,
-          // optional: pass context about the app
-          system: "You are an assistant for a Research Paper Organizer web app. Be concise and helpful."
-        })
-      });
-
-      if (!res.ok) {
-        throw new Error(`Gemini error ${res.status}`);
-      }
-
-      const data = await res.json();
-      // data.reply expected as plain text/markdown
-      typingBubble.remove();
-      addMessage(data.reply || "Sorry, I couldn't generate a response.", "bot");
-    } catch (err) {
-      typingBubble.remove();
-      addMessage("There was an error contacting the AI service. Please try again.", "bot");
-      console.error(err);
-    }
-  }
-});
-
+}
