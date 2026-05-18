@@ -8,78 +8,113 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <link rel="shortcut icon" href="./favicon/favicon.ico" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="css/auth.css" />
+
+    <link rel="icon" href="./favicon/favicon-48x48.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="48x48"
+      href="./favicon/favicon-48x48.png"
+    />
+    <link rel="manifest" href="./favicon/site.webmanifest" />
+    <meta name="theme-color" content="#2563eb" />
   </head>
   <body>
     <div class="auth-container">
       <div class="auth-card">
+        <!-- <=============Added Issue #465 =============> -->
+        <button class="close-btn" onclick="window.history.back()">✖</button>
+        <!-- <=============Ended Issue #465 =============> -->
         <div class="auth-header">
           <i class="fas fa-book-open"></i>
           <h1>Research Paper Organizer</h1>
           <p>Create your account</p>
         </div>
-        
-        <form id="signupForm" class="auth-form" novalidate>
+
+        <form id="signupForm" class="auth-form" novalidate type="button">
           <div class="form-group">
-            <label for="signupName">Full Name <span class="required">*</span></label>
+            <label for="signupName"
+              >Full Name <span class="required">*</span></label
+            >
             <div class="input-wrapper">
               <div class="input-container">
                 <i class="fas fa-user"></i>
-                <input 
-                  type="text" 
-                  id="signupName" 
+                <input
+                  type="text"
+                  id="signupName"
                   name="name"
                   autocomplete="name"
-                  required 
-                  placeholder="Enter your full name" 
+                  required
+                  placeholder="Enter your full name"
                   aria-required="true"
                   aria-describedby="nameError"
                 />
               </div>
-              <div id="nameError" class="error-message" role="alert" aria-live="polite"></div>
+              <div
+                id="nameError"
+                class="error-message"
+                role="alert"
+                aria-live="polite"
+              ></div>
             </div>
           </div>
-          
+
           <div class="form-group">
-            <label for="signupEmail">Email Address <span class="required">*</span></label>
+            <label for="signupEmail"
+              >Email Address <span class="required">*</span></label
+            >
             <div class="input-wrapper">
               <div class="input-container">
                 <i class="fas fa-envelope"></i>
-                <input 
-                  type="email" 
-                  id="signupEmail" 
+                <input
+                  type="email"
+                  id="signupEmail"
                   name="email"
                   autocomplete="email"
-                  required 
-                  placeholder="Enter your email" 
+                  required
+                  placeholder="Enter your email"
                   aria-required="true"
                   aria-describedby="emailError"
                 />
               </div>
-              <div id="emailError" class="error-message" role="alert" aria-live="polite"></div>
+              <div
+                id="emailError"
+                class="error-message"
+                role="alert"
+                aria-live="polite"
+              ></div>
             </div>
           </div>
-          
+
           <div class="form-group">
-            <label for="signupPassword">Password <span class="required">*</span></label>
+            <label for="signupPassword"
+              >Password <span class="required">*</span></label
+            >
             <div class="input-wrapper">
               <div class="input-container">
                 <i class="fas fa-lock"></i>
-                <input 
-                  type="password" 
-                  id="signupPassword" 
+                <input
+                  type="password"
+                  id="signupPassword"
                   name="password"
                   autocomplete="new-password"
-                  required 
+                  required
                   minlength="8"
-                  placeholder="Create a password" 
+                  placeholder="Create a password"
                   aria-required="true"
                   aria-describedby="passwordError passwordRequirements"
                 />
-                <button 
-                  type="button" 
-                  class="password-toggle" 
+                <button
+                  type="button"
+                  class="password-toggle"
                   aria-label="Toggle password visibility"
                   data-target="signupPassword"
                 >
@@ -91,104 +126,116 @@
                 <ul>
                   <li data-requirement="length">At least 8 characters</li>
                   <li data-requirement="uppercase">One uppercase letter</li>
+                  <li data-requirement="lowercase">One lowercase letter</li>
                   <li data-requirement="number">One number</li>
                   <li data-requirement="special">One special character</li>
                 </ul>
               </div>
 
-              <div id="passwordError" class="error-message" role="alert" aria-live="polite"></div>
+              <div
+                id="passwordError"
+                class="error-message"
+                role="alert"
+                aria-live="polite"
+              ></div>
               <div class="password-strength" id="passwordStrength">
                 <div class="strength-bar"></div>
               </div>
             </div>
           </div>
-          
+
           <div class="form-group">
-            <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+            <label for="confirmPassword"
+              >Confirm Password <span class="required">*</span></label
+            >
             <div class="input-wrapper">
               <div class="input-container">
                 <i class="fas fa-lock"></i>
-                <input 
-                  type="password" 
-                  id="confirmPassword" 
+                <input
+                  type="password"
+                  id="confirmPassword"
                   name="confirmPassword"
                   autocomplete="new-password"
-                  required 
-                  placeholder="Confirm your password" 
+                  required
+                  placeholder="Confirm your password"
                   aria-required="true"
                   aria-describedby="confirmPasswordError"
                 />
-                <button 
-                  type="button" 
-                  class="password-toggle" 
+                <button
+                  type="button"
+                  class="password-toggle"
                   aria-label="Toggle password visibility"
                   data-target="confirmPassword"
                 >
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
-              <div id="confirmPasswordError" class="error-message" role="alert" aria-live="polite"></div>
+              <div
+                id="confirmPasswordError"
+                class="error-message"
+                role="alert"
+                aria-live="polite"
+              ></div>
             </div>
           </div>
-          
+
           <div class="form-group">
             <div class="input-wrapper">
               <div class="checkbox-container">
-                <input 
-                  type="checkbox" 
-                  id="agreeTerms" 
+                <input
+                  type="checkbox"
+                  id="agreeTerms"
                   name="agreeTerms"
                   required
                   aria-required="true"
                   aria-describedby="termsError"
                 />
                 <label for="agreeTerms" class="checkbox-label">
-                  I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a> <span class="required">*</span>
+                  I agree to the
+                  <a
+                    href="terms-of-service.html"
+                    class="terms-link"
+                    target="_blank"
+                    >Terms of Service</a
+                  >
+                  and
+                  <a href="privacy.html" class="terms-link" target="_blank"
+                    >Privacy Policy</a
+                  >
+                  <span class="required">*</span>
                 </label>
               </div>
-              <div id="termsError" class="error-message" role="alert" aria-live="polite"></div>
+              <div
+                id="termsError"
+                class="error-message"
+                role="alert"
+                aria-live="polite"
+              ></div>
             </div>
           </div>
 
-          
           <button type="submit" class="auth-btn" disabled>
             <i class="fas fa-user-plus"></i>
             Create Account
           </button>
+          <div class="google-auth">
+            <button type="button" class="google-btn">
+              <i class="fab fa-google"></i>
+              Continue with Google
+            </button>
+          </div>
 
-          <button type="button" class="google-btn">
-            <i class="fab fa-google"></i>
-            Continue with Google
-         </button>
-         
           <div class="auth-divider">
             <span>Already have an account?</span>
-            
-
-        </div>
-        <a href="login.html" class="auth-link">Sign in instead</a>
-      </form>
-    </div>
+          </div>
+          <a href="login.html" class="auth-link">Sign in instead</a>
+        </form>
+      </div>
     </div>
 
     <script>
-    // TERMS AND PRIVACY CONTENT
-    const tosContent = `
-      <h2>Terms of Service</h2>
-      <p>
-        By using the Research Paper Organizer ("the Service"), you agree to the following terms:
-      </p>
-      <ul style="text-align:left;">
-        <li><strong>Account Responsibility:</strong> You are responsible for all activity on your account.</li>
-        <li><strong>Content:</strong> You retain ownership of your uploaded papers, notes, and metadata. You grant us a license solely for the purposes of storing, organizing, and displaying your research within your account.</li>
-        <li><strong>Usage:</strong> The Service is provided for academic and organizational purposes only. You may not use it for unlawful activities.</li>
-        <li><strong>Data Security:</strong> Reasonable measures are taken to protect your data, but no system is perfectly secure. You are encouraged to keep backups of important research.</li>
-        <li><strong>Termination:</strong> We reserve the right to suspend or terminate accounts engaged in misuse or violation of these terms.</li>
-        <li><strong>Changes:</strong> These Terms may be updated. Continued use after notice of changes implies acceptance of the new terms.</li>
-      </ul>
-    `;
-
-    const privacyContent = `
+      // PRIVACY CONTENT (Terms of Service content moved to dedicated page)
+      const privacyContent = `
       <h2>Privacy Policy</h2>
       <p>
         Your privacy is important to us. This policy outlines how your information is handled:
@@ -204,37 +251,54 @@
       </ul>
     `;
 
-    // HANDLE MODAL POPUPS
-    document.addEventListener('DOMContentLoaded', function () {
-      // Terms of Service
-      document.getElementById('showTos').addEventListener('click', function (e) {
-        e.preventDefault();
-        Swal.fire({
-          html: tosContent,
-          width: 600,
-          confirmButtonText: "Close",
-          customClass: {popup: 'tos-privacy-popup'}
-        });
+      // HANDLE MODAL POPUPS (Terms of Service modal removed - now links to dedicated page)
+      document.addEventListener("DOMContentLoaded", function () {
+        // Privacy Policy modal (if needed)
+        const privacyLink = document.getElementById("showPrivacy");
+        if (privacyLink) {
+          privacyLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            Swal.fire({
+              html: privacyContent,
+              width: 600,
+              confirmButtonText: "Close",
+              customClass: { popup: "tos-privacy-popup" },
+            });
+          });
+        }
       });
-      // Privacy Policy
-      document.getElementById('showPrivacy').addEventListener('click', function (e) {
-        e.preventDefault();
-        Swal.fire({
-          html: privacyContent,
-          width: 600,
-          confirmButtonText: "Close",
-          customClass: {popup: 'tos-privacy-popup'}
-        });
+
+      //script for progress bar on sign-up page
+      const passwordInput = document.getElementById("signupPassword");
+      const passwordStrength = document.getElementById("passwordStrength");
+
+      passwordStrength.style.display = "none";
+
+      passwordInput.addEventListener("focus", () => {
+        passwordStrength.style.display = "block";
       });
-    });
-  </script>
-    
-    <script src="js/auth.js"></script>
-  <script src="js/form-validation.js"></script>
 
+      passwordInput.addEventListener("blur", () => {
+        passwordStrength.style.display = "none";
+      });
 
+      passwordInput.addEventListener("input", () => {
+        passwordStrength.style.display = "block";
+      });
 
-  
+      // darkmode.js
 
-</body>
+// Apply saved dark mode preference
+window.addEventListener('DOMContentLoaded', () => {
+    if(localStorage.getItem('darkMode') === 'enabled'){
+        document.body.classList.add('dark-mode');
+    }
+});
+
+    </script>
+
+    <script type="module" src="js/auth.js"></script>
+
+    <script src="js/form-validation.js"></script>
+  </body>
 </html>

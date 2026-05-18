@@ -1,3 +1,4 @@
+<a name="top"></a>
 <div align="center">
 
 **📚 Research Paper Organizer**
@@ -57,6 +58,111 @@ A clean, minimal, and static web-based tool built using **HTML, CSS, and JavaScr
 
 ----
 
+**🛠️ Tech Stack**
+ - HTML 
+ - CSS
+ - JavaScript 
+ - Python
+
+----
+## 📂 Project Structure
+
+
+```
+📦 Research-Paper-Organizer
+├── 📂 .github/                  # GitHub workflows, issue & PR templates
+├── 📂 .vscode/                  # VS Code workspace settings
+├── 📂 backend/                  # Backend code
+│   ├── 📂 src/                  
+│   │   ├── 📂 config/           # Configuration files
+│   │   ├── 📂 controllers/      # Business logic
+│   │   ├── 📂 middleware/       # Middleware functions
+│   │   ├── 📂 models/           # Database models
+│   │   ├── 📂 routes/           # API routes
+│   │   ├── 📂 utils/            # Helper utilities
+│   │   └── 📜 app.js            # App entry point
+│   │
+│   ├── 📜 .env.example          # Example environment variables
+│   ├── 📜 .gitignore            # Git ignore rules
+│   ├── 📜 package-lock.json     # Dependency lockfile
+│   ├── 📜 package.json          # Backend dependencies & scripts
+│   └── 📜 test-env.js           # Environment test script
+│
+├── 📂 css/                      # Stylesheets
+│   ├── 📜 Tag-Based-filtering.css
+│   ├── 📜 about.css
+│   ├── 📜 add-organize-papers.css
+│   ├── 📜 ats-checker.css
+│   ├── 📜 auth.css
+│   ├── 📜 blog.css
+│   ├── 📜 contact.css
+│   ├── 📜 faq.css
+│   ├── 📜 forgot-password.css
+│   ├── 📜 glossary.css
+│   ├── 📜 hemingway.css
+│   ├── 📜 open-source.css
+│   ├── 📜 pdf-annotator.css
+│   ├── 📜 pdf-viewer.css
+│   ├── 📜 profile-settings.css
+│   ├── 📜 style.css
+│   ├── 📜 summarize.css
+│   └── 📜 tool.css
+│
+├── 📂 docs/                     # Documentation files
+├── 📂 favicon/                  # Favicon & PWA assets
+├── 📂 images/                   # Image assets
+├── 📂 js/                       # JavaScript files
+│
+├── 📜 .gitignore
+├── 📜 Faq.html
+├── 📜 License
+├── 📜 Masthead.html
+├── 📜 Pdfconverter.html
+├── 📜 Research_Paper_Summary.py
+├── 📜 TODO.md
+├── 📜 Tag-Based-filtering.html
+├── 📜 about.html
+├── 📜 about_new.html
+├── 📜 add-organize-papers.html
+├── 📜 app.js
+├── 📜 ats-checker.html
+├── 📜 auth-callback.html
+├── 📜 blog.html
+├── 📜 contact.html
+├── 📜 forgot-password.html
+├── 📜 glossary.html
+├── 📜 hemingway.html
+├── 📜 home.html
+├── 📜 index.html
+├── 📜 landing.css
+├── 📜 landing.js
+├── 📜 login.html
+├── 📜 manage.py
+├── 📜 offline.html
+├── 📜 open-source.html
+├── 📜 package.json
+├── 📜 pdf-annotator.html
+├── 📜 pdf-viewer.html
+├── 📜 privacy.html
+├── 📜 profile-settings.html
+├── 📜 profile.html
+├── 📜 roadmap.html
+├── 📜 signup.html
+├── 📜 site.webmanifest
+├── 📜 slider.css
+├── 📜 summarize.html
+├── 📜 terms-of-service.html
+├── 🖼️ test1.jpg
+├── 🖼️ testimonialw.png
+└── 📜 tools.html
+
+```
+
+
+
+ 
+
+
 **💡 How to Use**
 
 1. Clone this repo:
@@ -67,6 +173,24 @@ git clone https://github.com/supriya46788/Research-Paper-Organizer.git
 
 2. Open `index.html` in your browser (right click and open with live server).
 3. Start adding your research papers directly.
+
+----
+
+## 🚀 Getting Started
+
+Before running the project, make sure you have the following installed:
+
+### ✅ Prerequisites
+
+- **Git** – to clone the repository  
+
+- **Python 3.8+** – required for backend scripts (`manage.py`, `Research_Paper_Summary.py`)  
+  
+- **Node.js & npm** – required for frontend dependencies (`package.json`)  
+  
+- **Code Editor (VS Code recommended)** – for editing and running the project  
+
+- **Web Browser (Chrome/Firefox)** – to view the HTML pages
 
 ----
 
@@ -224,14 +348,16 @@ This project is licensed under the MIT License - see the [`License`](https://git
 | Role          | Name               | GitHub Profile                                      | LinkedIn Profile                                                        |
 | ------------- | ------------------ | --------------------------------------------------- | ----------------------------------------------------------------------- |
 | Mentor 1   | Sanskriti saran |  [Sanskriti-Saran](https://github.com/Sanskriti-Saran)  | [sanskriti-saran](https://www.linkedin.com/in/sanskriti-saran-982280240/) |
-| Mentor 2   | MEKALA VAMSHI YADAV |  [VAMSHIYADAV46](https://github.com/VAMSHIYADAV46)  | []() |
+| Mentor 2   | MEKALA VAMSHI YADAV |  [VAMSHIYADAV46](https://github.com/VAMSHIYADAV46)  | [MEKALA VAMSHI YADAV](https://www.linkedin.com/in/mekalavamshiyadav/) |
 
 ---
 
 
 **👨‍💻 Built with ❤️ by Research-Paper-Organizer Team**
 
-**❤️ Pandey Supriya and Contributors ❤️** [open an issue](https://github.com/supriya46788/Research-Paper-Organizer/issues) | [Watch Demo](https://supriya46788.github.io/Research-Paper-Organizer/)
+**❤️Supriya Pandey and Contributors ❤️**
+
+[open an issue](https://github.com/supriya46788/Research-Paper-Organizer/issues) | [Watch Demo](https://supriya46788.github.io/Research-Paper-Organizer/)
 
 ---
 

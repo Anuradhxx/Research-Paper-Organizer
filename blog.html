@@ -1,327 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <!-- Meta -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blog | Research Paper Organizer</title>
-  <meta name="description" content="Updates, tips, tools, and insights from the research community. Filter by category and explore our latest posts." />
+  
+
+  <link rel="shortcut icon" href="./favicon/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <!-- Your global styles should remain as-is -->
   <link rel="stylesheet" href="css/style.css" />
   <!-- Updated blog styles below -->
   <link rel="stylesheet" href="css/blog.css" />
+
+  <link rel="icon" href="./favicon/favicon-48x48.png" type="image/png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="./favicon/favicon-48x48.png" />
+  <link rel="manifest" href="./favicon/site.webmanifest" />
+  <meta name="theme-color" content="#2563eb" />
 </head>
-<style>
-
-  .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  flex-wrap: wrap;
-}
-.hamburger-container {
-  display: none;
-  flex-direction: column;
-  /* justify-content: center; */
-  cursor: pointer;
-  gap: 5px;
-  padding: 10px;
-}
-
-.hamburger-container .bar {
-  width: 25px;
-  height: 3px;
-  background-color: #333;
-  transition: 0.3s;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .hamburger-container {
-    display: flex;
-  }
-
- 
-  .navbar {
-    display: flex;
-   justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    position: relative;
-  }
-
-  .navbar-right-links {
-    display: none;
-    position: absolute;
-    top: 70px;              /* adjust depending on navbar height */
-    right: 10px;  
-    margin:15px;          /* aligns the box to the right */
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
-    flex-direction: column;
-    gap: 0.75rem;
-    z-index: 1000;
-    width: max-content;     /* only as wide as content */
-    min-width: 150px;  
-  }
-
-  .navbar-right-links.show {
-    display: flex;
-  }
-
-  .nav-item {
-    display: inline-flex;           /* Ensures icon and text are in a row */
-  align-items: center;           /* Vertical centering */
-  justify-content: center;
-    padding: 1rem;
-    width:10rem;
-    font-size: 1rem;
-    
-  }
-}
-      /* Footer CSS*/
-    .modern-footer {
-  width: 100vw; /* Full viewport width */
-  margin-left: calc(-50vw + 50%); /* Center it if inside a constrained container */
-  background: linear-gradient(135deg, #1f3c88, #2c5aa0);
-  color: #fff;
-  padding: 60px 20px 20px;
-  border-radius: 25px 25px 0 0;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
-  overflow-x: hidden;
-}
-
-
-    .footer-top {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2rem;
-      margin-bottom: 30px;
-    }
-
-    .footer-brand h2 {
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-    }
-
-    .footer-brand h2 i {
-      margin-right: 10px;
-      font-size: 1.6rem;
-      vertical-align: middle;
-    }
-
-    .footer-brand p {
-      font-size: 1rem;
-      line-height: 1.5;
-      opacity: 0.9;
-    }
-
-    .footer-links-section h4 {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-      padding-bottom: 5px;
-    }
-
-    .footer-links-section ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .footer-links-section ul li {
-      margin-bottom: 8px;
-    }
-
-    .footer-links-section ul li a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.3s;
-    }
-
-    .footer-links-section ul li a:hover {
-      color: #fff;
-      transform: translateX(5px);
-    }
-
-    .social-icons {
-      display: flex;
-      gap: 10px;
-      margin-top: 5px;
-    }
-
-    .social-icons a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      color: #fff;
-      transition: 0.3s;
-    }
-
-    .social-icons a:hover {
-      background: #fff;
-      color: #2c5aa0;
-      transform: scale(1.1);
-    }
-
-    .footer-bottom {
-      text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      padding-top: 15px;
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-    .footer-card {
-      flex: 1 1 200px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 20px;
-      min-width: 200px;
-    }
- .footer-card ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .footer-card ul li {
-      margin-bottom: 8px;
-    }
-
-    .footer-card ul li a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.3s;
-      
-      padding: 5px;
-      padding-left: 20px;
-    }
-
-    .footer-card ul li a:hover {
-      color: #fff;
-      transform: translateX(5px);
-    }
-
-    @media (max-width: 768px) {
-      .footer-top {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 3rem;
-      }
-
-      .footer-brand h2 {
-        font-size: 1.5rem;
-      }
-
-      .footer-links-section h4 {
-        font-size: 1rem;
-      }
-
-      .footer-links-section ul li a {
-        font-size: 0.95rem;
-      }
-
-      .social-icons a {
-        width: 35px;
-        height: 35px;
-      }
-    }
-
-     @media (max-width: 756px) and (min-width: 730px),
-       (max-width: 601px) and (min-width: 540px) {
-  .footer-card {
-    gap: 4rem;
-  }
-}
-
-    @media (max-width: 480px) {
-      .footer-top {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-
-      .social-icons {
-        justify-content: center;
-      }
-
-      .footer-links-section ul li a {
-        justify-content: center;
-      }
-    }
-    .footer-bottom .heart {
-  color: inherit;  
-}
-
-/* Dark Mode Footer Styles */
-body.dark-mode .modern-footer {
-background: linear-gradient(135deg, #1a202c, #2d3748);
-}
-
-body.dark-mode .footer-section h3,
-body.dark-mode .footer-section h4 {
-color: #e0e0e0;
-}
-
-body.dark-mode .footer-section h4 {
-border-bottom-color: rgba(224, 224, 224, 0.2);
-}
-
-body.dark-mode .footer-links a {
-color: rgba(224, 224, 224, 0.8);
-}
-
-body.dark-mode .footer-links a:hover {
-color: #90cdf4;
-}
-
-body.dark-mode .social-links a {
-background: rgba(224, 224, 224, 0.1);
-color: #e0e0e0;
-}
-
-body.dark-mode .social-links a:hover {
-background: rgba(144, 205, 244, 0.2);
-color: #90cdf4;
-}
-
-body.dark-mode .footer-bottom {
-background: rgba(0, 0, 0, 0.3);
-border-top-color: rgba(224, 224, 224, 0.1);
-}
-
-
-</style>
 <body>
   <div class="container">
-    <!-- Navigation (unchanged visual; accessible semantics) -->
+    <!-- Navigation -->
     <nav class="navbar" aria-label="Primary">
-      <a href="home.html" class="nav-item">
-        <i class="fas fa-home" aria-hidden="true"></i>
+      <a href="index.html" class="nav-item nav-home-item">
         <span>Home</span>
       </a>
-       <!-- Hamburger div (shows only on mobile) -->
-  <div class="hamburger-container" onclick="toggleMenu()" aria-label="Toggle Menu">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-  </div>
+      <div class="hamburger-container" onclick="toggleMenu()" aria-label="Toggle Menu">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
       <div class="navbar-right-links" role="menubar" aria-label="Site">
         <a href="about.html" class="nav-item" role="menuitem">About us</a>
         <a href="blog.html" class="nav-item" role="menuitem" aria-current="page">Blogs</a>
@@ -339,18 +51,24 @@ border-top-color: rgba(224, 224, 224, 0.1);
       <h1>📖 Our Blog</h1>
       <p>Updates, Tips &amp; Insights from the Research Community</p>
 
-      <!-- Category Filters (accessible + color-coded) -->
-      <div class="category-filters utility-text-center"
-           role="group"
-           aria-label="Filter posts by category">
-        <button type="button" class="filter-btn active" data-category="all" aria-pressed="true">All</button>
-        <button type="button" class="filter-btn" data-category="tips" aria-pressed="false">Tips</button>
-        <button type="button" class="filter-btn" data-category="ai" aria-pressed="false">AI</button>
-        <button type="button" class="filter-btn" data-category="updates" aria-pressed="false">Updates</button>
-        <button type="button" class="filter-btn" data-category="citations" aria-pressed="false">Citations</button>
-        <button type="button" class="filter-btn" data-category="productivity" aria-pressed="false">Productivity</button>
-        <button type="button" class="filter-btn" data-category="tools" aria-pressed="false">Tools</button>
+      <div class="search-container">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" id="searchInput" placeholder="Search posts by title or keyword..."
+          aria-label="Search blog posts" />
+        <ul id="searchSuggestions"></ul>
       </div>
+
+      <!-- Category Filters -->
+      <div class="category-filters utility-text-center" role="group" aria-label="Filter posts by category">
+  <button type="button" class="filter-btn active" data-category="all" aria-pressed="true">All</button>
+  <button type="button" class="filter-btn" data-category="tips" aria-pressed="false">Tips</button>
+  <button type="button" class="filter-btn" data-category="ai" aria-pressed="false">AI</button>
+  <button type="button" class="filter-btn" data-category="updates" aria-pressed="false">Updates</button>
+  <button type="button" class="filter-btn" data-category="citations" aria-pressed="false">Citations</button>
+  <button type="button" class="filter-btn" data-category="productivity" aria-pressed="false">Productivity</button>
+  <button type="button" class="filter-btn" data-category="tools" aria-pressed="false">Tools</button>
+</div>
+
     </header>
 
     <!-- Blog List -->
@@ -371,7 +89,8 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-tips">Tips</span>
           </div>
-          <a href="https://www.immerse.education/student-life/academic-life/tips-to-improve-research-skills/#:~:text=1.,Skills%20for%20Successful%20Research%20Reports" class="read-more" aria-label="Read more: 11 Research Tips for Students">Read More →</a>
+          <a href="https://www.immerse.education/student-life/academic-life/tips-to-improve-research-skills/#:~:text=1.,Skills%20for%20Successful%20Research%20Reports"
+            class="read-more" aria-label="Read more: 11 Research Tips for Students">Read More →</a>
         </div>
       </article>
 
@@ -391,7 +110,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-ai">AI</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: AI Tools for Academic Research">Read More →</a>
+          <a href="https://www.semanticscholar.org/" class="read-more" aria-label="Read more: AI Tools for Academic Research">Explore →</a>
         </div>
       </article>
 
@@ -402,7 +121,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
         </figure>
         <div class="blog-content">
           <h2>New Features in Research Paper Organizer</h2>
-          <p>We’ve added tagging, filtering, and paper previews! Here’s what’s new and how to use them.</p>
+          <p>We've added tagging, filtering, and paper previews! Here's what's new and how to use them.</p>
           <div class="meta">
             <time datetime="2025-07-18">Jul 18, 2025</time>
             <span class="dot">•</span>
@@ -411,7 +130,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-updates">Updates</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: New Features in Research Paper Organizer">Read More →</a>
+          <a href="https://blog.researchpal.co/ai-tools/organize-research-papers-pdf-management/" class="read-more" aria-label="Read more: New Features in Research Paper Organizer">Read More →</a>
         </div>
       </article>
 
@@ -431,14 +150,15 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-citations">Citations</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: Mastering Citations">Read More →</a>
+          <a href="https://publishingstate.com/mastering-citation-styles-a-comprehensive-guide/2024/" class="read-more" aria-label="Read more: Mastering Citations">Read More →</a>
         </div>
       </article>
 
       <!-- Card 5 -->
       <article class="blog-card" data-category="productivity">
         <figure class="blog-media">
-          <img src="images/time-management.jpg" alt="Time management illustration" loading="lazy" width="800" height="500" />
+          <img src="images/time-management.jpg" alt="Time management illustration" loading="lazy" width="800"
+            height="500" />
         </figure>
         <div class="blog-content">
           <h2>Time Management for Researchers</h2>
@@ -451,7 +171,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-productivity">Productivity</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: Time Management for Researchers">Read More →</a>
+          <a href="https://www.researchgate.net/publication/230623342_Time_Management_Strategies_for_Research_Productivity" class="read-more" aria-label="Read more: Time Management for Researchers">Read More →</a>
         </div>
       </article>
 
@@ -471,14 +191,15 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-tools">Tools</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: Best Free Tools for Research">Read More →</a>
+          <a href="https://www.aitoolmate.com/best-ai-tools-for-academic-research/" class="read-more" aria-label="Read more: Best Free Tools for Research">Read More →</a>
         </div>
       </article>
 
       <!-- Card 7 -->
       <article class="blog-card" data-category="productivity">
         <figure class="blog-media">
-          <img src="images/collaborating.jpg" alt="People collaborating on research" loading="lazy" width="800" height="500" />
+          <img src="images/collaborating.jpg" alt="People collaborating on research" loading="lazy" width="800"
+            height="500" />
         </figure>
         <div class="blog-content">
           <h2>Collaborating on Research Projects</h2>
@@ -491,7 +212,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-productivity">Productivity</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: Collaborating on Research Projects">Read More →</a>
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6644188/" class="read-more" aria-label="Read more: Collaborating on Research Projects">Read More →</a>
         </div>
       </article>
 
@@ -511,7 +232,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-tips">Tips</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: Effective Note-Taking for Research">Read More →</a>
+          <a href="https://philosophy.institute/research-methodology/effective-note-taking-research-strategies/" class="read-more" aria-label="Read more: Effective Note-Taking for Research">Read More →</a>
         </div>
       </article>
 
@@ -531,7 +252,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
           <div class="tags">
             <span class="badge badge-tools">Tools</span>
           </div>
-          <a href="#" class="read-more" aria-label="Read more: Getting Started with Data Analysis">Read More →</a>
+          <a href="https://www.geeksforgeeks.org/data-analysis/100-days-of-data-analytics/" class="read-more" aria-label="Read more: Getting Started with Data Analysis">Read More →</a>
         </div>
       </article>
     </main>
@@ -539,68 +260,33 @@ border-top-color: rgba(224, 224, 224, 0.1);
     <!-- Empty state -->
     <p id="emptyState" class="empty-state" hidden>No posts found for this category.</p>
 
-        <!-- Back to Top Button -->
-<button id="backToTop">
-  <i class="fa-solid fa-arrow-up"></i>
-</button>
+    <!-- Back to Top Button -->
+    <button id="backToTop">
+      <i class="fa-solid fa-arrow-up"></i>
+    </button>
 
-   
-  <!-- Modern Footer -->
-  <footer class="modern-footer" aria-label="Footer">
-    <div class="footer-top">
-      <div class="footer-brand footer-card">
-        <h3><i class="fas fa-book-open"></i> Research Paper Organizer</h3>
-        <p style=" margin-top: 20px;">Organize, track, and manage your research papers seamlessly.</p>
-      </div>
+    <!-- Modern Footer -->
+    <div id="footer-placeholder"></div>
 
-      <div class="footer-links-section footer-card" >
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a href="index.html"><i class="fas fa-home"></i>Home</a></li>
-          <li><a href="about.html"><i class="fas fa-users"></i>About Us</a></li>
-          <li><a href="contact.html"><i class="fas fa-envelope"></i>Contact</a></li>
-          <li><a href="faq.html"><i class="fas fa-question-circle"></i>FAQ</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-links-section footer-card">
-        <h4>Resources</h4>
-        <ul>
-          <li><a href="blog.html"><i class="fas fa-blog"></i>Blog</a></li>
-          <li><a href="glossary.html"><i class="fas fa-book"></i>Glossary</a></li>
-          <li><a href="open-source.html"><i class="fas fa-code-branch"></i>Open Source</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-links-section footer-card">
-        <h4>Connect</h4>
-        <div class="social-icons">
-          <a href="https://github.com/supriya46788" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
-<a href="https://www.linkedin.com/in/supriyapandey595" target="_blank" title="LinkedIn" class="linkedin-icon">
-  <i class="fab fa-linkedin" style="color: white;"></i>
-</a>
-          <a href="mailto:supriyadpandey502@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-  © 2025 Research Paper Organizer | Made with <span class="heart">&hearts;</span> for researchers worldwide
-</div>
-
-  </footer>
+<script>
+  fetch("footer.html")
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById("footer-placeholder").innerHTML = data;
+    });
+</script>
 
   </div>
 
-  <!-- JS (inline for easy drop-in; feel free to extract) -->
+  <!-- JavaScript -->
   <script>
-   
-  function toggleMenu() {
-    const nav = document.querySelector(".navbar-right-links");
-    nav.classList.toggle("show");
-  }
-    // ------- Dark Mode Toggle (unchanged behavior, aria + persistence)
-    (function() {
+    function toggleMenu() {
+      const nav = document.querySelector(".navbar-right-links");
+      nav.classList.toggle("show");
+    }
+
+    // Dark Mode Toggle
+    (function () {
       const btn = document.getElementById('darkModeToggle');
       const icon = btn.querySelector('i');
       const apply = (enabled) => {
@@ -615,70 +301,77 @@ border-top-color: rgba(224, 224, 224, 0.1);
       apply(saved);
     })();
 
-    // ------- Utilities
-    function qs(sel, scope=document){ return scope.querySelector(sel); }
-    function qsa(sel, scope=document){ return Array.from(scope.querySelectorAll(sel)); }
+    // Utilities
+    function qs(sel, scope = document) { return scope.querySelector(sel); }
+    function qsa(sel, scope = document) { return Array.from(scope.querySelectorAll(sel)); }
 
-    // ------- Category Filtering (URL param + localStorage + a11y)
-    (function() {
+    // Combined Search and Category Filtering
+    (function () {
+      const searchInput = qs('#searchInput');
       const buttons = qsa('.filter-btn');
-      const cards   = qsa('.blog-card');
-      const empty   = qs('#emptyState');
+      const cards = qsa('.blog-card');
+      const empty = qs('#emptyState');
 
-      // keyboard navigation (Left/Right)
-      buttons.forEach((btn, idx) => {
-        btn.addEventListener('keydown', (e) => {
-          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-            e.preventDefault();
-            const dir = e.key === 'ArrowRight' ? 1 : -1;
-            const next = buttons[(idx + dir + buttons.length) % buttons.length];
-            next.focus();
-          }
-        });
-      });
+      function masterFilter() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const activeCategory = qs('.filter-btn.active').dataset.category;
 
-      function setActive(category){
-        buttons.forEach(b => {
-          const isActive = b.dataset.category === category || (category === 'all' && b.dataset.category === 'all');
-          b.classList.toggle('active', isActive);
-          b.setAttribute('aria-pressed', String(isActive));
-        });
-      }
-
-      function applyFilter(category){
         let visibleCount = 0;
+
         cards.forEach(card => {
-          const match = category === 'all' || card.dataset.category === category;
-          card.hidden = !match;
-          card.style.display = match ? 'flex' : 'none';
-          visibleCount += match ? 1 : 0;
+          const title = (qs('h2', card)?.textContent || '').toLowerCase();
+          const paragraph = (qs('p', card)?.textContent || '').toLowerCase();
+          const tag = (qs('.badge', card)?.textContent || '').toLowerCase();
+          const cardCategory = card.dataset.category;
+
+          const categoryMatch = activeCategory === 'all' || cardCategory === activeCategory;
+          const searchMatch = title.includes(searchTerm) || paragraph.includes(searchTerm) || tag.includes(searchTerm);
+
+          const isVisible = categoryMatch && searchMatch;
+
+          card.hidden = !isVisible;
+          card.style.display = isVisible ? 'flex' : 'none';
+          if (isVisible) visibleCount++;
         });
-        empty.hidden = visibleCount !== 0;
-        if (visibleCount === 0) empty.focus?.();
-        // Persist
-        localStorage.setItem('blogFilter', category);
-        const url = new URL(window.location);
-        if (category === 'all') url.searchParams.delete('cat'); else url.searchParams.set('cat', category);
-        history.replaceState({}, '', url);
+
+        empty.hidden = visibleCount > 0;
+        if (visibleCount === 0) {
+          empty.textContent = 'No posts found matching your criteria.';
+          empty.focus?.();
+        }
       }
+
+      searchInput.addEventListener('input', masterFilter);
 
       buttons.forEach(btn => {
         btn.addEventListener('click', () => {
-          const cat = btn.dataset.category;
-          setActive(cat);
-          applyFilter(cat);
+          buttons.forEach(b => b.classList.remove('active', 'aria-pressed'));
+          btn.classList.add('active');
+          btn.setAttribute('aria-pressed', 'true');
+
+          localStorage.setItem('blogFilter', btn.dataset.category);
+          const url = new URL(window.location);
+          if (btn.dataset.category === 'all') url.searchParams.delete('cat'); else url.searchParams.set('cat', btn.dataset.category);
+          history.replaceState({}, '', url);
+
+          masterFilter();
         });
       });
 
-      // init from URL > localStorage > default
       const urlCat = new URLSearchParams(location.search).get('cat');
       const storedCat = localStorage.getItem('blogFilter');
-      const cat = urlCat || storedCat || 'all';
-      setActive(cat);
-      applyFilter(cat);
+      const initialCat = urlCat || storedCat || 'all';
+
+      buttons.forEach(b => {
+        const isActive = b.dataset.category === initialCat;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', String(isActive));
+      });
+
+      masterFilter();
     })();
 
-    // ------- Scroll-in Animations (prefers-reduced-motion respected)
+    // Scroll-in Animations
     (function () {
       const cards = qsa('.blog-card');
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -701,7 +394,7 @@ border-top-color: rgba(224, 224, 224, 0.1);
       cards.forEach(c => io.observe(c));
     })();
 
-    // ------- Progressive Enhancement: focus visible polyfill-lite
+    // Progressive Enhancement
     (function () {
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Tab' || e.key.startsWith('Arrow')) {
@@ -714,23 +407,81 @@ border-top-color: rgba(224, 224, 224, 0.1);
       });
     })();
 
-         //back to top button 
-// Show button when scrolled down
-const backToTop = document.getElementById("backToTop");
+    // Back to top button 
+    const backToTop = document.getElementById("backToTop");
+    const icon = backToTop.querySelector("i");
 
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 100) {
-    backToTop.style.display = "block";
-  } else {
-    backToTop.style.display = "none";
-  }
-});
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 100) {
+        backToTop.style.display = "block";
 
-// Smooth scroll to top
-backToTop.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+        if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 10) {
+          icon.classList.remove("fa-arrow-down");
+          icon.classList.add("fa-arrow-up");
+        } else {
+          icon.classList.remove("fa-arrow-up");
+          icon.classList.add("fa-arrow-down");
+        }
+      } else {
+        backToTop.style.display = "none";
+      }
+    });
 
+    backToTop.addEventListener("click", () => {
+      if (icon.classList.contains("fa-arrow-down")) {
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+
+    // Auto-suggest search functionality
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchInput = document.getElementById("searchInput");
+      const suggestionBox = document.getElementById("searchSuggestions");
+
+      const headings = Array.from(document.querySelectorAll(".blog-card h2")).map(h => ({
+        text: h.innerText,
+        element: h
+      }));
+
+      searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        suggestionBox.innerHTML = "";
+
+        if (!query) {
+          suggestionBox.style.display = "none";
+          return;
+        }
+
+        const matches = headings.filter(h => h.text.toLowerCase().includes(query));
+
+        if (matches.length === 0) {
+          suggestionBox.style.display = "none";
+          return;
+        }
+
+        matches.forEach(match => {
+          const li = document.createElement("li");
+          li.textContent = match.text;
+          li.onclick = () => {
+            match.element.scrollIntoView({ behavior: "smooth", block: "center" });
+            searchInput.value = match.text;
+            suggestionBox.style.display = "none";
+          };
+          suggestionBox.appendChild(li);
+        });
+
+        suggestionBox.style.display = "block";
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+          suggestionBox.style.display = "none";
+        }
+      });
+    });
   </script>
 </body>
+
 </html>

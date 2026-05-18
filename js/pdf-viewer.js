@@ -1,18 +1,23 @@
 // PDF Viewer and Annotation System
 class PDFAnnotator {
+    rotation = 0; // Track current rotation in degrees
+    // Track the current PDF.js render task
+    currentRenderTask = null;
     constructor() {
         this.pdfDoc = null;
         this.currentPage = 1;
         this.scale = 1.0;
         this.currentTool = 'highlight';
-        this.currentColor = '#ffff00';
+            this.currentColor = '#FFFF00'; // Default highlight color
         this.annotations = [];
         this.undoStack = [];
         this.redoStack = [];
-        this.isDrawing = false;
-        this.lastPosition = null;
-        this.currentPenPoints = []; // Track pen drawing points
-        
+    this.isDrawing = false;
+    this.lastPosition = null;
+    this.currentPenPoints = []; // Track pen drawing points
+    this.eraserSize = 20; // Eraser brush size
+    this.isErasing = false; // Track eraser state
+    this.lineWidth = 2; // Default line width
         // Wait for DOM to be fully loaded before initializing
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.initializeElements());
@@ -22,6 +27,26 @@ class PDFAnnotator {
     }
 
     initializeElements() {
+        // Line width slider integration
+        var lineWidthSlider = document.getElementById('line-width');
+        var lineWidthValue = document.getElementById('line-width-value');
+        if (lineWidthSlider && lineWidthValue) {
+            lineWidthSlider.value = this.lineWidth;
+            lineWidthValue.textContent = this.lineWidth;
+            lineWidthSlider.addEventListener('input', (e) => {
+                this.lineWidth = parseInt(e.target.value);
+                lineWidthValue.textContent = this.lineWidth;
+            });
+            
+        }
+        // Color wheel integration
+        var colorWheel = document.getElementById('color-wheel');
+        if (colorWheel) {
+            colorWheel.value = this.currentColor;
+            colorWheel.addEventListener('input', (e) => {
+                this.currentColor = e.target.value;
+            });
+        }
         // Get canvas elements
         this.canvas = document.getElementById('pdf-canvas');
         this.annotationCanvas = document.getElementById('annotation-canvas');
@@ -48,6 +73,22 @@ class PDFAnnotator {
     }
 
     initializeEventListeners() {
+        // Rotate Left button
+        const rotateLeftBtn = document.getElementById('rotate-left');
+        if (rotateLeftBtn) {
+            rotateLeftBtn.addEventListener('click', () => {
+                this.rotation = (this.rotation - 90 + 360) % 360;
+                this.renderPage();
+            });
+        }
+        // Rotate Right button
+        const rotateRightBtn = document.getElementById('rotate-right');
+        if (rotateRightBtn) {
+            rotateRightBtn.addEventListener('click', () => {
+                this.rotation = (this.rotation + 90) % 360;
+                this.renderPage();
+            });
+        }
         // File upload handlers - check if elements exist first
         const pdfUpload = document.getElementById('pdf-upload');
         const pdfUploadMain = document.getElementById('pdf-upload-main');
@@ -69,6 +110,19 @@ class PDFAnnotator {
         if (colorPicker) {
             colorPicker.addEventListener('change', (e) => {
                 this.currentColor = e.target.value;
+            });
+        }
+        
+        // Eraser size control
+        const eraserSizeControl = document.getElementById('eraser-size');
+        const eraserSizeValue = document.getElementById('eraser-size-value');
+        if (eraserSizeControl) {
+            eraserSizeControl.addEventListener('input', (e) => {
+                const size = parseInt(e.target.value);
+                this.setEraserSize(size);
+                if (eraserSizeValue) {
+                    eraserSizeValue.textContent = size;
+                }
             });
         }
         
@@ -103,6 +157,7 @@ class PDFAnnotator {
             this.annotationCanvas.addEventListener('mousemove', (e) => this.continueAnnotation(e));
             this.annotationCanvas.addEventListener('mouseup', (e) => this.endAnnotation(e));
             this.annotationCanvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+            this.annotationCanvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
             
             // Touch support for mobile
             this.annotationCanvas.addEventListener('touchstart', (e) => this.handleTouch(e, 'start'));
@@ -169,7 +224,9 @@ class PDFAnnotator {
                 console.error('Canvas container not found!');
             }
             
+            // Always start at first page after upload
             this.currentPage = 1;
+            console.log('Set currentPage to', this.currentPage, 'of', this.pdfDoc.numPages);
             await this.renderPage();
             this.clearAnnotations();
             
@@ -184,13 +241,23 @@ class PDFAnnotator {
     async renderPage() {
         if (!this.pdfDoc) {
             console.log('No PDF document loaded');
+            this.showMessage('No PDF document loaded. Please upload a PDF.', 'error');
+            // Always show the canvas container for debugging
+            const canvasContainer = document.getElementById('pdf-canvas-container');
+            if (canvasContainer) {
+                canvasContainer.classList.add('show');
+                canvasContainer.style.display = 'block';
+            }
             return;
         }
 
         try {
-            console.log('Rendering page:', this.currentPage);
+            console.log('Rendering page:', this.currentPage, 'of', this.pdfDoc.numPages);
+            if (this.currentPage < 1) this.currentPage = 1;
+            if (this.currentPage > this.pdfDoc.numPages) this.currentPage = this.pdfDoc.numPages;
             const page = await this.pdfDoc.getPage(this.currentPage);
-            const viewport = page.getViewport({ scale: this.scale });
+            // Apply rotation to viewport
+            const viewport = page.getViewport({ scale: this.scale, rotation: this.rotation });
 
             console.log('Viewport dimensions:', viewport.width, 'x', viewport.height);
 
@@ -214,6 +281,16 @@ class PDFAnnotator {
             this.ctx.fillStyle = 'white';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+            // Cancel any previous render task before starting a new one
+            if (this.currentRenderTask && this.currentRenderTask.cancel) {
+                try {
+                    this.currentRenderTask.cancel();
+                    console.log('Previous render task cancelled.');
+                } catch (e) {
+                    console.warn('Error cancelling previous render task:', e);
+                }
+            }
+
             // Render PDF page
             const renderContext = {
                 canvasContext: this.ctx,
@@ -221,24 +298,24 @@ class PDFAnnotator {
             };
 
             console.log('Starting page render...');
-            const renderTask = page.render(renderContext);
-            
-            renderTask.promise.then(() => {
+            this.currentRenderTask = page.render(renderContext);
+
+            this.currentRenderTask.promise.then(() => {
                 console.log('Page rendered successfully');
-                
+                this.currentRenderTask = null;
                 // Verify canvas has content
                 const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
                 const hasContent = imageData.data.some(pixel => pixel !== 0);
                 console.log('Canvas has content:', hasContent);
-                
                 if (!hasContent) {
                     console.warn('Canvas appears empty, trying alternative rendering...');
                     // Try rendering with different parameters
                     this.alternativeRender(page, viewport);
                 }
             }).catch((error) => {
+                this.currentRenderTask = null;
                 console.error('Render promise failed:', error);
-                throw error;
+                this.showMessage('Failed to render PDF page. Error: ' + (error && error.message ? error.message : error), 'error');
             });
 
             // Center the canvas wrapper
@@ -248,19 +325,19 @@ class PDFAnnotator {
                 canvasWrapper.style.textAlign = 'center';
                 canvasWrapper.style.width = '100%';
             }
-            
+
             // Update page info
             const currentPageElement = document.getElementById('current-page');
             if (currentPageElement) {
                 currentPageElement.textContent = this.currentPage;
             }
-            
+
             // Render annotations for current page
             this.renderAnnotations();
-            
+
         } catch (error) {
             console.error('Error rendering page:', error);
-            alert('Error rendering PDF page: ' + error.message);
+            this.showMessage('Error rendering PDF page: ' + error.message, 'error');
         }
     }
 
@@ -320,6 +397,17 @@ class PDFAnnotator {
         document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
         
+        // Show/hide eraser size control
+        const eraserSizeControl = document.getElementById('eraser-size-control');
+        if (eraserSizeControl) {
+            eraserSizeControl.style.display = tool === 'eraser' ? 'flex' : 'none';
+        }
+        
+        // Hide eraser preview when switching away from eraser
+        if (tool !== 'eraser') {
+            this.hideEraserPreview();
+        }
+        
         // Update cursor
         this.updateCursor();
     }
@@ -335,6 +423,9 @@ class PDFAnnotator {
                 break;
             case 'note':
                 canvas.style.cursor = 'pointer';
+                break;
+            case 'eraser':
+                canvas.style.cursor = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="black" stroke-width="2"/></svg>') 12 12, auto`;
                 break;
             default:
                 canvas.style.cursor = 'default';
@@ -363,15 +454,22 @@ class PDFAnnotator {
         this.saveState();
         
         if (this.currentTool === 'pen') {
-            // Initialize pen drawing
-            this.currentPenPoints = [pos]; // Start with first point
+            // Pen freehand
+            this.currentPenPoints = [pos];
             this.annotationCtx.beginPath();
             this.annotationCtx.moveTo(pos.x, pos.y);
             this.annotationCtx.strokeStyle = this.currentColor;
-            this.annotationCtx.lineWidth = 2;
+            this.annotationCtx.lineWidth = this.lineWidth;
+            this.annotationCtx.setLineDash([]);
             this.annotationCtx.lineCap = 'round';
             this.annotationCtx.lineJoin = 'round';
-            console.log('Started pen drawing at:', pos);
+        } else if (['underline', 'strikethrough'].includes(this.currentTool)) {
+            // For underline/strike, just record start position
+            this.currentPenPoints = [pos];
+        } else if (this.currentTool === 'eraser') {
+            // Start erasing
+            this.isErasing = true;
+            this.eraseAtPosition(pos);
         }
     }
 
@@ -381,10 +479,22 @@ class PDFAnnotator {
         const pos = this.getCanvasPosition(event);
         
         if (this.currentTool === 'pen') {
-            // Add point to current pen stroke
+            // Pen freehand
             this.currentPenPoints.push(pos);
             this.annotationCtx.lineTo(pos.x, pos.y);
             this.annotationCtx.stroke();
+        } else if (['underline', 'strikethrough'].includes(this.currentTool)) {
+            // For underline/strike, show preview horizontal line
+            if (this.currentPenPoints.length === 1) {
+                this.currentPenPoints[1] = pos;
+            } else {
+                this.currentPenPoints[1] = pos;
+            }
+            this.redrawAnnotations();
+            this.drawHorizontalLinePreview(this.currentPenPoints[0], this.currentPenPoints[1], this.currentTool);
+        } else if (this.currentTool === 'eraser') {
+            // Continue erasing
+            this.eraseAtPosition(pos);
         } else if (['highlight', 'underline', 'strikethrough'].includes(this.currentTool)) {
             // Show preview rectangle
             this.redrawAnnotations();
@@ -399,21 +509,46 @@ class PDFAnnotator {
         const pos = this.getCanvasPosition(event);
         
         if (this.currentTool === 'pen') {
-            // Save pen stroke with all collected points
+            // Pen freehand
             if (this.currentPenPoints && this.currentPenPoints.length > 0) {
                 const annotation = {
                     type: 'pen',
                     page: this.currentPage,
                     color: this.currentColor,
-                    points: [...this.currentPenPoints], // Copy the points array
-                    lineWidth: 2,
+                    points: [...this.currentPenPoints],
+                    lineWidth: this.lineWidth,
                     timestamp: Date.now()
                 };
                 this.addAnnotation(annotation);
-                console.log('Pen annotation saved with', this.currentPenPoints.length, 'points');
             }
-            // Clear current pen points
             this.currentPenPoints = [];
+        } else if (['underline', 'strikethrough'].includes(this.currentTool)) {
+            // Save horizontal line annotation
+            if (this.currentPenPoints.length === 2) {
+                const start = this.currentPenPoints[0];
+                const end = this.currentPenPoints[1];
+                // Snap to horizontal
+                const y = (this.currentTool === 'underline') ? Math.max(start.y, end.y) + this.lineWidth * 2 : (start.y + end.y) / 2;
+                const annotation = {
+                    type: this.currentTool,
+                    page: this.currentPage,
+                    color: this.currentColor,
+                    lineWidth: this.lineWidth,
+                    dash: (this.currentTool === 'strikethrough'),
+                    points: [
+                        { x: Math.min(start.x, end.x), y: y },
+                        { x: Math.max(start.x, end.x), y: y }
+                    ],
+                    timestamp: Date.now()
+                };
+                this.addAnnotation(annotation);
+            }
+            this.currentPenPoints = [];
+        } else if (this.currentTool === 'eraser') {
+            // End erasing
+            this.isErasing = false;
+            this.hideEraserPreview();
+            this.renderAnnotations(); // Re-render to show final result
         } else if (['highlight', 'underline', 'strikethrough'].includes(this.currentTool)) {
             // Save selection annotation
             const rect = {
@@ -442,6 +577,17 @@ class PDFAnnotator {
         if (this.currentTool === 'note') {
             const pos = this.getCanvasPosition(event);
             this.showNoteModal(pos);
+        } else if (this.currentTool === 'eraser') {
+            const pos = this.getCanvasPosition(event);
+            this.saveState();
+            this.eraseAtPosition(pos);
+        }
+    }
+
+    handleMouseMove(event) {
+        if (this.currentTool === 'eraser' && !this.isDrawing) {
+            const pos = this.getCanvasPosition(event);
+            this.showEraserPreview(pos);
         }
     }
 
@@ -489,10 +635,8 @@ class PDFAnnotator {
     renderAnnotations() {
         // Clear annotation canvas
         this.annotationCtx.clearRect(0, 0, this.annotationCanvas.width, this.annotationCanvas.height);
-        
-        // Clear notes container
-        this.notesContainer.innerHTML = '';
-        
+        // Remove any leftover sticky notes from notesContainer (if any)
+        if (this.notesContainer) this.notesContainer.innerHTML = '';
         // Render annotations for current page
         this.annotations.filter(ann => ann.page === this.currentPage).forEach(annotation => {
             this.renderAnnotation(annotation);
@@ -505,68 +649,97 @@ class PDFAnnotator {
                 this.annotationCtx.fillStyle = this.hexToRgba(annotation.color, 0.3);
                 this.annotationCtx.fillRect(annotation.rect.x, annotation.rect.y, annotation.rect.width, annotation.rect.height);
                 break;
-                
-            case 'underline':
-                this.annotationCtx.strokeStyle = annotation.color;
-                this.annotationCtx.lineWidth = 2;
-                this.annotationCtx.beginPath();
-                this.annotationCtx.moveTo(annotation.rect.x, annotation.rect.y + annotation.rect.height);
-                this.annotationCtx.lineTo(annotation.rect.x + annotation.rect.width, annotation.rect.y + annotation.rect.height);
-                this.annotationCtx.stroke();
-                break;
-                
-            case 'strikethrough':
-                this.annotationCtx.strokeStyle = annotation.color;
-                this.annotationCtx.lineWidth = 2;
-                this.annotationCtx.beginPath();
-                this.annotationCtx.moveTo(annotation.rect.x, annotation.rect.y + annotation.rect.height / 2);
-                this.annotationCtx.lineTo(annotation.rect.x + annotation.rect.width, annotation.rect.y + annotation.rect.height / 2);
-                this.annotationCtx.stroke();
-                break;
-                
             case 'pen':
                 if (annotation.points && annotation.points.length > 0) {
                     this.annotationCtx.strokeStyle = annotation.color;
                     this.annotationCtx.lineWidth = annotation.lineWidth || 2;
+                    this.annotationCtx.setLineDash([]);
                     this.annotationCtx.lineCap = 'round';
                     this.annotationCtx.lineJoin = 'round';
                     this.annotationCtx.beginPath();
-                    
-                    // Move to first point
                     this.annotationCtx.moveTo(annotation.points[0].x, annotation.points[0].y);
-                    
-                    // Draw lines to subsequent points
                     for (let i = 1; i < annotation.points.length; i++) {
                         this.annotationCtx.lineTo(annotation.points[i].x, annotation.points[i].y);
                     }
-                    
                     this.annotationCtx.stroke();
-                    console.log('Rendered pen annotation with', annotation.points.length, 'points');
                 }
                 break;
-                
+            case 'underline':
+            case 'strikethrough':
+                if (annotation.points && annotation.points.length === 2) {
+                    this.annotationCtx.strokeStyle = annotation.color;
+                    this.annotationCtx.lineWidth = annotation.lineWidth || 4;
+                    this.annotationCtx.lineCap = 'round';
+                    this.annotationCtx.lineJoin = 'round';
+                    if (annotation.type === 'strikethrough' && annotation.dash) {
+                        this.annotationCtx.setLineDash([8, 4]);
+                    } else {
+                        this.annotationCtx.setLineDash([]);
+                    }
+                    this.annotationCtx.beginPath();
+                    this.annotationCtx.moveTo(annotation.points[0].x, annotation.points[0].y);
+                    this.annotationCtx.lineTo(annotation.points[1].x, annotation.points[1].y);
+                    this.annotationCtx.stroke();
+                    this.annotationCtx.setLineDash([]);
+                }
+                break;
             case 'note':
-                this.renderStickyNote(annotation);
+                // Draw sticky note on canvas instead of HTML
+                const ctx = this.annotationCtx;
+                const x = annotation.position.x;
+                const y = annotation.position.y;
+                const noteWidth = 120;
+                const noteHeight = 60;
+                // Draw note background
+                ctx.save();
+                ctx.globalAlpha = 0.9;
+                ctx.fillStyle = '#fff8b0';
+                ctx.strokeStyle = '#e0c200';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.rect(x, y, noteWidth, noteHeight);
+                ctx.fill();
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+                // Draw note text
+                ctx.fillStyle = '#333';
+                ctx.font = '13px Arial';
+                ctx.textBaseline = 'top';
+                const lines = annotation.text.split('\n');
+                let textY = y + 8;
+                for (let line of lines) {
+                    ctx.fillText(line, x + 8, textY, noteWidth - 16);
+                    textY += 18;
+                }
+                ctx.restore();
                 break;
         }
     }
 
-    renderStickyNote(annotation) {
-        const noteDiv = document.createElement('div');
-        noteDiv.className = 'sticky-note';
-        noteDiv.style.left = `${annotation.position.x}px`;
-        noteDiv.style.top = `${annotation.position.y}px`;
-        
-        noteDiv.innerHTML = `
-            <div class="note-content">${this.escapeHtml(annotation.text)}</div>
-            <div class="note-actions">
-                <button class="note-btn" onclick="pdfAnnotator.editNote(${annotation.timestamp})">Edit</button>
-                <button class="note-btn" onclick="pdfAnnotator.deleteAnnotation(${annotation.timestamp})">Delete</button>
-            </div>
-        `;
-        
-        this.notesContainer.appendChild(noteDiv);
+    drawHorizontalLinePreview(start, end, tool) {
+        if (!start || !end) return;
+        const ctx = this.annotationCtx;
+        ctx.save();
+        ctx.strokeStyle = this.currentColor;
+        ctx.lineWidth = this.lineWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        if (tool === 'strikethrough') {
+            ctx.setLineDash([8, 4]);
+        } else {
+            ctx.setLineDash([]);
+        }
+        // Snap to horizontal
+        const y = (tool === 'underline') ? Math.max(start.y, end.y) + this.lineWidth * 2 : (start.y + end.y) / 2;
+        ctx.beginPath();
+        ctx.moveTo(Math.min(start.x, end.x), y);
+        ctx.lineTo(Math.max(start.x, end.x), y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
     }
+
+    // Removed renderStickyNote: notes are now rendered on canvas
 
     drawSelectionPreview(start, end) {
         const rect = {
@@ -579,6 +752,179 @@ class PDFAnnotator {
         this.annotationCtx.strokeStyle = this.currentColor;
         this.annotationCtx.lineWidth = 1;
         this.annotationCtx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+    }
+
+    // Eraser
+    eraseAtPosition(position) {
+        const currentPageAnnotations = this.annotations.filter(ann => ann.page === this.currentPage);
+        let annotationsModified = false;
+        this.showEraserPreview(position);
+        for (let i = currentPageAnnotations.length - 1; i >= 0; i--) {
+            const annotation = currentPageAnnotations[i];
+            const annotationIndex = this.annotations.indexOf(annotation);
+            
+            if (this.isPositionInAnnotation(position, annotation)) {
+                if (annotation.type === 'pen') {
+                    const modifiedPoints = this.erasePenPoints(annotation.points, position);
+                    if (modifiedPoints.length === 0) {
+                        this.annotations.splice(annotationIndex, 1);
+                        annotationsModified = true;
+                    } else if (modifiedPoints.length !== annotation.points.length) {
+                        annotation.points = modifiedPoints;
+                        annotationsModified = true;
+                    }
+                } else if (['highlight', 'underline', 'strikethrough'].includes(annotation.type)) {
+                    if (this.isPositionInRect(position, annotation.rect)) {
+                        this.annotations.splice(annotationIndex, 1);
+                        annotationsModified = true;
+                    }
+                } else if (annotation.type === 'note') {
+                    const distance = Math.sqrt(
+                        Math.pow(position.x - annotation.position.x, 2) + 
+                        Math.pow(position.y - annotation.position.y, 2)
+                    );
+                    if (distance <= this.eraserSize) {
+                        this.annotations.splice(annotationIndex, 1);
+                        annotationsModified = true;
+                    }
+                }
+            }
+        }
+
+        if (annotationsModified) {
+            this.updateAnnotationsList();
+            this.renderAnnotations();
+        }
+    }
+
+    showEraserPreview(position) {
+        if (!this.eraserPreviewCanvas) {
+            this.eraserPreviewCanvas = document.createElement('canvas');
+            this.eraserPreviewCanvas.style.position = 'absolute';
+            this.eraserPreviewCanvas.style.pointerEvents = 'none';
+            this.eraserPreviewCanvas.style.zIndex = '1000';
+            this.eraserPreviewCanvas.style.border = '2px dashed #ff6b6b';
+            this.eraserPreviewCanvas.style.borderRadius = '50%';
+            this.eraserPreviewCanvas.width = this.eraserSize * 2;
+            this.eraserPreviewCanvas.height = this.eraserSize * 2;
+            
+            const canvasContainer = document.getElementById('canvas-wrapper');
+            if (canvasContainer) {
+                canvasContainer.appendChild(this.eraserPreviewCanvas);
+            }
+        }
+        const rect = this.annotationCanvas.getBoundingClientRect();
+        const canvasContainer = document.getElementById('canvas-wrapper');
+        const containerRect = canvasContainer.getBoundingClientRect();
+        
+        this.eraserPreviewCanvas.style.left = (rect.left - containerRect.left + position.x - this.eraserSize) + 'px';
+        this.eraserPreviewCanvas.style.top = (rect.top - containerRect.top + position.y - this.eraserSize) + 'px';
+        this.eraserPreviewCanvas.style.display = 'block';
+    }
+
+    hideEraserPreview() {
+        if (this.eraserPreviewCanvas) {
+            this.eraserPreviewCanvas.style.display = 'none';
+        }
+    }
+
+    isPositionInAnnotation(position, annotation) {
+        switch (annotation.type) {
+            case 'pen':
+                return this.isPositionInPenStroke(position, annotation.points);
+            case 'highlight':
+            case 'underline':
+            case 'strikethrough':
+                return this.isPositionInRect(position, annotation.rect);
+            case 'note':
+                const distance = Math.sqrt(
+                    Math.pow(position.x - annotation.position.x, 2) + 
+                    Math.pow(position.y - annotation.position.y, 2)
+                );
+                return distance <= this.eraserSize;
+            default:
+                return false;
+        }
+    }
+
+    isPositionInPenStroke(position, points) {
+        if (!points || points.length < 2) return false;
+        for (let i = 0; i < points.length; i++) {
+            const distance = Math.sqrt(
+                Math.pow(position.x - points[i].x, 2) + 
+                Math.pow(position.y - points[i].y, 2)
+            );
+            if (distance <= this.eraserSize) {
+                return true;
+            }
+        }
+        for (let i = 0; i < points.length - 1; i++) {
+            if (this.isPositionNearLineSegment(position, points[i], points[i + 1])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    isPositionNearLineSegment(position, start, end) {
+        const A = position.x - start.x;
+        const B = position.y - start.y;
+        const C = end.x - start.x;
+        const D = end.y - start.y;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        
+        if (lenSq === 0) return false;
+
+        let param = dot / lenSq;
+
+        let xx, yy;
+
+        if (param < 0) {
+            xx = start.x;
+            yy = start.y;
+        } else if (param > 1) {
+            xx = end.x;
+            yy = end.y;
+        } else {
+            xx = start.x + param * C;
+            yy = start.y + param * D;
+        }
+
+        const dx = position.x - xx;
+        const dy = position.y - yy;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        return distance <= this.eraserSize;
+    }
+
+    isPositionInRect(position, rect) {
+        return position.x >= rect.x && 
+               position.x <= rect.x + rect.width &&
+               position.y >= rect.y && 
+               position.y <= rect.y + rect.height;
+    }
+
+    erasePenPoints(points, eraserPosition) {
+        return points.filter(point => {
+            const distance = Math.sqrt(
+                Math.pow(eraserPosition.x - point.x, 2) + 
+                Math.pow(eraserPosition.y - point.y, 2)
+            );
+            return distance > this.eraserSize;
+        });
+    }
+
+    setEraserSize(size) {
+        this.eraserSize = Math.max(3, Math.min(100, size));
+        console.log('Eraser size set to:', this.eraserSize);
+        
+        if (this.eraserPreviewCanvas) {
+            this.eraserPreviewCanvas.width = this.eraserSize * 2;
+            this.eraserPreviewCanvas.height = this.eraserSize * 2;
+        }
     }
 
     redrawAnnotations() {
@@ -612,44 +958,60 @@ class PDFAnnotator {
             annotationsByPage[page].forEach(annotation => {
                 const item = document.createElement('div');
                 item.className = 'annotation-item fade-in';
-                
                 let content = '';
-                switch (annotation.type) {
-                    case 'note':
-                        content = annotation.text;
-                        break;
-                    case 'highlight':
-                        content = 'Highlighted text';
-                        break;
-                    case 'underline':
-                        content = 'Underlined text';
-                        break;
-                    case 'strikethrough':
-                        content = 'Strikethrough text';
-                        break;
-                    case 'pen':
-                        content = 'Pen drawing';
-                        break;
+                let isNote = annotation.type === 'note';
+                if (isNote) {
+                    // Show only a short preview (first 30 chars)
+                    let preview = annotation.text ? annotation.text.substring(0, 30) : '';
+                    if (annotation.text && annotation.text.length > 30) preview += '...';
+                    content = `<span class="note-preview" style="cursor:pointer; color:#333;" title="Click to expand">${this.escapeHtml(preview)}</span>`;
+                } else {
+                    switch (annotation.type) {
+                        case 'highlight':
+                            content = 'Highlighted text';
+                            break;
+                        case 'underline':
+                            content = 'Underlined text';
+                            break;
+                        case 'strikethrough':
+                            content = 'Strikethrough text';
+                            break;
+                        case 'pen':
+                            content = 'Pen drawing';
+                            break;
+                    }
                 }
-                
                 item.innerHTML = `
-                    <div class="annotation-main" onclick="pdfAnnotator.goToAnnotation(${annotation.timestamp})">
+                    <div class="annotation-main" data-annotation-timestamp="${annotation.timestamp}" style="position:relative;" onclick="pdfAnnotator.goToAnnotation(${annotation.timestamp})">
                         <div class="annotation-type">${annotation.type.charAt(0).toUpperCase() + annotation.type.slice(1)}</div>
-                        <div class="annotation-content">${this.escapeHtml(content)}</div>
+                        <div class="annotation-content">${content}</div>
                         <div class="annotation-page">Page ${annotation.page}</div>
                     </div>
                     <div class="annotation-actions">
-                        ${annotation.type === 'note' ? `
-                            <button class="annotation-edit-btn" onclick="pdfAnnotator.editNote(${annotation.timestamp})" title="Edit note">
+                        ${isNote ? `
+                            <button class="annotation-edit-btn" onclick="event.stopPropagation(); pdfAnnotator.editNote(${annotation.timestamp})" title="Edit note">
                                 <i class="fas fa-edit"></i>
                             </button>
                         ` : ''}
-                        <button class="annotation-delete-btn" onclick="pdfAnnotator.deleteAnnotation(${annotation.timestamp})" title="Delete annotation">
+                        <button class="annotation-delete-btn" onclick="event.stopPropagation(); pdfAnnotator.deleteAnnotation(${annotation.timestamp})" title="Delete annotation">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 `;
-                
+                // Add expand/collapse for notes
+                if (isNote) {
+                    item.querySelector('.note-preview').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        let expanded = item.querySelector('.note-full');
+                        if (!expanded) {
+                            expanded = document.createElement('div');
+                            expanded.className = 'note-full';
+                            expanded.style = 'background:#fffbe6; color:#333; border:1px solid #ffd700; border-radius:6px; padding:8px 12px; margin-top:6px; position:absolute; left:0; z-index:10; min-width:180px; max-width:320px; box-shadow:0 2px 8px rgba(0,0,0,0.12);';
+                            expanded.innerHTML = `<div style='font-size:15px; margin-bottom:6px;'>${this.escapeHtml(annotation.text)}</div><button style='font-size:13px; background:#ffd700; border:none; border-radius:4px; padding:2px 10px; margin-right:6px; cursor:pointer;' onclick='event.stopPropagation(); this.parentNode.remove();'>Close</button>`;
+                            item.querySelector('.annotation-main').appendChild(expanded);
+                        }
+                    });
+                }
                 list.appendChild(item);
             });
         });
@@ -763,9 +1125,9 @@ class PDFAnnotator {
             annotations: this.annotations,
             timestamp: Date.now()
         };
-        
         localStorage.setItem('pdf_annotations', JSON.stringify(data));
-        
+        // Update the left annotations panel to preview current annotations
+        this.updateAnnotationsList();
         // Show success message
         this.showMessage('Annotations saved successfully!', 'success');
     }
@@ -1281,6 +1643,69 @@ startxref
     }
 }
 
+// --- Global initialization code (must be outside the class) ---
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded - Initializing PDF Annotator');
+    // Check if PDF.js is loaded
+    if (typeof pdfjsLib === 'undefined') {
+        console.error('PDF.js library not loaded!');
+        alert('PDF.js library failed to load. Please refresh the page and try again.');
+        return;
+    }
+    // Check if jsPDF is loaded
+    setTimeout(() => {
+        console.log('Checking jsPDF availability...');
+        console.log('window.jspdf:', typeof window.jspdf);
+        console.log('window.jsPDF:', typeof window.jsPDF);
+        if (window.jspdf && window.jspdf.jsPDF) {
+            console.log('✅ jsPDF loaded successfully via window.jspdf.jsPDF');
+        } else if (window.jsPDF) {
+            console.log('✅ jsPDF loaded successfully via window.jsPDF');
+        } else {
+            console.warn('⚠️ jsPDF library not detected - PDF export will fall back to summary');
+        }
+        // Test html2canvas
+        if (typeof html2canvas !== 'undefined') {
+            console.log('✅ html2canvas loaded successfully');
+        } else {
+            console.warn('⚠️ html2canvas not loaded - using fallback method');
+        }
+    }, 2000); // Check after 2 seconds to allow libraries to load
+    // Set PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    console.log('PDF.js worker configured');
+    // Initialize the annotator
+    try {
+        pdfAnnotator = new PDFAnnotator();
+        console.log('PDF Annotator initialized successfully');
+    } catch (error) {
+        console.error('Error initializing PDF Annotator:', error);
+        alert('Failed to initialize PDF Annotator. Please refresh the page.');
+    }
+    // Add CSS for toast animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .sticky-note {
+            pointer-events: auto !important;
+        }
+        .note-content {
+            pointer-events: auto !important;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+
 // Initialize the PDF Annotator when the page loads
 let pdfAnnotator;
 
@@ -1355,16 +1780,20 @@ document.addEventListener('DOMContentLoaded', () => {
 let annotations = []; // Use your actual annotation data structure
 
 // Export Annotations
-document.getElementById('export-annotations').onclick = function() {
-    const data = JSON.stringify(annotations, null, 2);
-    const blob = new Blob([data], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'annotations.json';
-    a.click();
-    URL.revokeObjectURL(url);
-};
+document.addEventListener('DOMContentLoaded', () => {
+    // Attach Export button handler AFTER pdfAnnotator is initialized
+    const exportBtn = document.getElementById('export-annotations');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            if (window.pdfAnnotator && typeof pdfAnnotator.exportAnnotations === 'function') {
+                pdfAnnotator.exportAnnotations();
+            } else {
+                alert("PDF Annotator not initialized!");
+            }
+        });
+    }
+});
+
 
 // Import Annotations
 document.getElementById('import-annotations').onclick = function() {
@@ -1391,3 +1820,18 @@ document.getElementById('import-annotations-file').onchange = function(e) {
     };
     reader.readAsText(file);
 };
+
+
+async function saveAnnotationsToServer(paperId, annotations) {
+  try {
+    const response = await fetch(`/api/research-papers/${paperId}/annotations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ annotations })
+    });
+    if (!response.ok) throw new Error("Failed to save annotations");
+    return await response.json();
+  } catch (err) {
+    alert("Error saving annotations: " + err.message);
+  }
+}

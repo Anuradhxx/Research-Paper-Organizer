@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/about.css">
+  <link rel="shortcut icon" href="./favicon/favicon.ico" type="image/x-icon">
   <style>
     /* About page specific styles */
     .container {
@@ -358,6 +359,8 @@
       opacity: 0.9;
       box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
     }
+        
+      
 
     /* Footer styles to match other pages */
     .blog-footer {
@@ -480,13 +483,19 @@
       }
     }
   </style>
+
+<link rel="icon" href="./favicon/favicon-48x48.png" type="image/png" />
+<link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="48x48" href="./favicon/favicon-48x48.png" />
+<link rel="manifest" href="./favicon/site.webmanifest" />
+<meta name="theme-color" content="#2563eb" />
+
 </head>
 <body>
   <div class="container">
     <!-- Navigation -->
     <nav class="navbar" aria-label="Primary">
       <a href="index.html" class="nav-item">
-        <i class="fas fa-home" aria-hidden="true"></i>
         <span>Home</span>
       </a>
 
@@ -713,6 +722,8 @@
     </button>
   </div>
 
+  
+
   <script>
     // Dark mode functionality
     (function() {
@@ -748,19 +759,36 @@
     })();
 
     // Back to top button functionality
-    const backToTopButton = document.getElementById('backToTop');
+    const bottomToTop = document.getElementById("scrollBtn");
+    const icon =  bottomToTop.querySelector("i");
 
-    window.addEventListener('scroll', function() {
-      if (window.pageYOffset > 300) {
-        backToTopButton.style.display = 'block';
-      } else {
-        backToTopButton.style.display = 'none';
-      }
-    });
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 100) {
+     bottomToTop.style.display = "block";
 
-    backToTopButton.addEventListener('click', function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    
+    if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 10) {
+      icon.classList.remove("fa-arrow-down");
+      icon.classList.add("fa-arrow-up");
+    } else {
+      icon.classList.remove("fa-arrow-up");
+      icon.classList.add("fa-arrow-down");
+    }
+  } else {
+    bottomToTop.style.display = "none";
+  }
+});
+
+  bottomToTop.addEventListener("click", () => {
+   if (icon.classList.contains("fa-arrow-down")) {
+    // scroll to bottom
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+   } else {
+    // scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+   }
+});
+
 
     // Load GitHub contributors
     async function loadContributors() {
